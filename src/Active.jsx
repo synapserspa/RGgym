@@ -44,7 +44,7 @@ export function estimateSec(items, mode, exMap, s, auto = true) {
 }
 
 // ---------- Contador +/- grande ----------
-function Stepper({ label, value, step, onChange, unit, decimals = false }) {
+function Stepper({ label, value, step, onChange, unit, decimals = false, small = false }) {
   const [txt, setTxt] = useState(null)
   const show = txt ?? String(value)
   const bump = (d) => onChange(Math.max(0, Math.round((Number(value) + d) * 100) / 100))
@@ -55,11 +55,11 @@ function Stepper({ label, value, step, onChange, unit, decimals = false }) {
         onFocus={(e) => e.target.select()}
         onChange={(e) => { setTxt(e.target.value); const n = Number(e.target.value.replace(',', '.')); if (!Number.isNaN(n)) onChange(n) }}
         onBlur={() => setTxt(null)}
-        className="w-full bg-transparent text-center text-5xl font-black focus:outline-none" />
+        className={cx('w-full bg-transparent text-center font-black focus:outline-none', small ? 'text-4xl' : 'text-5xl')} />
       <div className="text-center text-xs text-muted -mt-1 mb-2">{unit}</div>
       <div className="grid grid-cols-2 gap-2">
-        <button aria-label={`Menos ${label}`} onClick={() => bump(-step)} className="h-16 rounded-2xl bg-surface2 flex items-center justify-center"><Minus size={30} strokeWidth={3} /></button>
-        <button aria-label={`Más ${label}`} onClick={() => bump(step)} className="h-16 rounded-2xl bg-surface2 flex items-center justify-center"><Plus size={30} strokeWidth={3} /></button>
+        <button aria-label={`Menos ${label}`} onClick={() => bump(-step)} className={cx('rounded-2xl bg-surface2 flex items-center justify-center', small ? 'h-14' : 'h-16')}><Minus size={30} strokeWidth={3} /></button>
+        <button aria-label={`Más ${label}`} onClick={() => bump(step)} className={cx('rounded-2xl bg-surface2 flex items-center justify-center', small ? 'h-14' : 'h-16')}><Plus size={30} strokeWidth={3} /></button>
       </div>
     </div>
   )
@@ -303,29 +303,53 @@ export function ActiveWorkout({ state, update, onExit }) {
         </>
       )}
 
-      {/* Temporizador de descanso */}
+      {/* Temporizador de descanso + vista previa del siguiente ejercicio */}
       {resting && !finished && (
-        <div className={cx('absolute inset-0 z-40 flex flex-col items-center justify-center px-6 text-center transition-colors', restLeft > 0 ? 'bg-black/95' : 'bg-neon')}>
-          <div className={cx('text-lg font-bold mb-2', restLeft > 0 ? 'text-muted' : 'text-black')}>{paused ? 'EN PAUSA' : restLeft > 0 ? (a.auto && a.restTotal <= S.extraChange + 1 && a.mode === 'circuit' ? 'CAMBIA DE EJERCICIO' : 'DESCANSO') : '¡PREPÁRATE PARA LA SIGUIENTE!'}</div>
-          <div className="relative size-72 mb-6">
-            <svg viewBox="0 0 100 100" className="size-full -rotate-90">
-              <circle cx="50" cy="50" r="45" fill="none" stroke={restLeft > 0 ? '#2c2c2c' : '#00000033'} strokeWidth="6" />
-              <circle cx="50" cy="50" r="45" fill="none" stroke={restLeft > 0 ? (restLeft <= 10 && S.ticks ? '#fbbf24' : '#39ff14') : '#000'} strokeWidth="6" strokeLinecap="round"
-                strokeDasharray={2 * Math.PI * 45} strokeDashoffset={2 * Math.PI * 45 * (1 - Math.max(0, restLeft) / Math.max(1, a.restTotal))} />
-            </svg>
-            <div className={cx('absolute inset-0 flex items-center justify-center text-7xl font-black tabular-nums', restLeft <= 0 && 'text-black')}>{restLeft > 0 ? fmtTime(restLeft) : '00:00'}</div>
+        <div className={cx('absolute inset-0 z-40 flex flex-col overflow-y-auto px-5 pt-6 pb-8 transition-colors', restLeft > 0 ? 'bg-black/95' : 'bg-neon')}>
+          <div className="text-center">
+            <div className={cx('text-lg font-bold mb-2', restLeft > 0 ? 'text-muted' : 'text-black')}>{paused ? 'EN PAUSA' : restLeft > 0 ? (a.auto && a.restTotal <= S.extraChange + 1 && a.mode === 'circuit' ? 'CAMBIA DE EJERCICIO' : 'DESCANSO') : '¡PREPÁRATE PARA LA SIGUIENTE!'}</div>
+            <div className="relative size-48 mx-auto mb-4">
+              <svg viewBox="0 0 100 100" className="size-full -rotate-90">
+                <circle cx="50" cy="50" r="45" fill="none" stroke={restLeft > 0 ? '#2c2c2c' : '#00000033'} strokeWidth="6" />
+                <circle cx="50" cy="50" r="45" fill="none" stroke={restLeft > 0 ? (restLeft <= 10 && S.ticks ? '#fbbf24' : '#39ff14') : '#000'} strokeWidth="6" strokeLinecap="round"
+                  strokeDasharray={2 * Math.PI * 45} strokeDashoffset={2 * Math.PI * 45 * (1 - Math.max(0, restLeft) / Math.max(1, a.restTotal))} />
+              </svg>
+              <div className={cx('absolute inset-0 flex items-center justify-center text-5xl font-black tabular-nums', restLeft <= 0 && 'text-black')}>{restLeft > 0 ? fmtTime(restLeft) : '00:00'}</div>
+            </div>
+            <div className="flex gap-3 w-full max-w-sm mx-auto">
+              {restLeft > 0 && !paused && <>
+                <Button variant="secondary" className="flex-1" onClick={() => setActive((c) => ({ restEnd: c.restEnd - 15000 }))}>−15s</Button>
+                <Button variant="secondary" className="flex-1" onClick={() => setActive((c) => ({ restEnd: c.restEnd + 15000, restTotal: c.restTotal + 15 }))}>+15s</Button>
+              </>}
+              {paused
+                ? <Button className="flex-1 !bg-amber-400" onClick={resume}><Play size={22} fill="black" /> Reanudar</Button>
+                : <Button className={cx('flex-[1.4]', restLeft <= 0 && '!bg-black !text-neon')} onClick={() => (a.auto ? skipPhase() : setActive({ restEnd: null }))}>{restLeft > 0 ? 'Saltar' : 'Continuar'}</Button>}
+            </div>
+            {a.auto && !paused && <button onClick={pause} className={cx('mt-3 min-h-12 px-6 rounded-2xl font-bold inline-flex items-center gap-2', restLeft > 0 ? 'text-muted' : 'text-black')}><Pause size={18} /> Pausar rutina</button>}
           </div>
-          {restLeft > 0 && nextEx && <div className="text-muted mb-6">Siguiente: <span className="text-white font-bold">{nextEx.name}</span> · serie {steps[a.pos].set + 1}</div>}
-          <div className="flex gap-3 w-full max-w-sm">
-            {restLeft > 0 && !paused && <>
-              <Button variant="secondary" className="flex-1" onClick={() => setActive((c) => ({ restEnd: c.restEnd - 15000 }))}>−15s</Button>
-              <Button variant="secondary" className="flex-1" onClick={() => setActive((c) => ({ restEnd: c.restEnd + 15000, restTotal: c.restTotal + 15 }))}>+15s</Button>
-            </>}
-            {paused
-              ? <Button className="flex-1 !bg-amber-400" onClick={resume}><Play size={22} fill="black" /> Reanudar</Button>
-              : <Button className={cx('flex-[1.4]', restLeft <= 0 && '!bg-black !text-neon')} onClick={() => (a.auto ? skipPhase() : setActive({ restEnd: null }))}>{restLeft > 0 ? 'Saltar' : 'Continuar'}</Button>}
+
+          <div className="mt-4 rounded-3xl bg-surface border border-line p-3 text-white">
+            <div className="text-xs font-bold text-neon mb-2">A CONTINUACIÓN · SERIE {step.set + 1} DE {item.sets}{a.mode === 'circuit' ? ` · RONDA ${step.round + 1}` : ''}</div>
+            <div className="flex gap-3 items-center mb-3">
+              <ExerciseImage ex={ex} className="w-32 h-20 shrink-0" />
+              <div className="min-w-0"><div className="font-black text-lg leading-tight">{ex.name}</div><div className="text-sm text-muted">Objetivo {item.reps}{item.rir && item.rir !== '-' ? ` · RIR ${item.rir}` : ''}</div></div>
+            </div>
+            {!cardio && (
+              <div className="flex gap-3 mb-3">
+                <Stepper small label="REPETICIONES" value={inp.reps} step={1} unit="reps" onChange={(v) => setInp((x) => ({ ...x, reps: v }))} />
+                <Stepper small label="PESO" value={inp.weight} step={2.5} unit="kg" decimals onChange={(v) => setInp((x) => ({ ...x, weight: v }))} />
+              </div>
+            )}
+            <button onClick={() => setGuide((g) => !g)} className="w-full flex items-center justify-between min-h-12 px-4 rounded-2xl bg-surface2 font-bold">
+              <span>Cómo se hace</span>{guide ? <ChevronUp /> : <ChevronDown />}
+            </button>
+            {guide && <ol className="mt-2 space-y-2 px-1">{ex.steps.map((t, i) => <li key={i} className="flex gap-3"><span className="text-neon font-black">{i + 1}.</span><span className="leading-snug">{t}</span></li>)}</ol>}
+            <div className="flex gap-3 mt-3">
+              <Button variant="secondary" className="flex-1 !text-base" disabled={paused} onClick={skip}><SkipForward size={20} /> Saltar esta serie</Button>
+              {!a.auto && <Button variant="secondary" className="flex-1 !text-base" onClick={() => { unlockAudio(); toggleAuto() }}><Bot size={20} /> Modo automático</Button>}
+            </div>
+            {nextEx && <div className="text-xs text-muted mt-3">Después: <span className="text-white font-semibold">{nextEx.name}</span></div>}
           </div>
-          {a.auto && !paused && <button onClick={pause} className="mt-4 min-h-12 px-6 rounded-2xl text-muted font-bold flex items-center gap-2"><Pause size={18} /> Pausar rutina</button>}
         </div>
       )}
 

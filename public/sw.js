@@ -1,5 +1,5 @@
 // Service Worker: funcionamiento offline (precache + stale-while-revalidate)
-const CACHE = 'metodo-rod-v5'
+const CACHE = 'metodo-rod-v6'
 
 self.addEventListener('install', (event) => {
   event.waitUntil((async () => {
