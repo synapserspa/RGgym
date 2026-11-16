@@ -1,6 +1,6 @@
 {
-  "name": "MyRGgym",
-  "short_name": "MyRGgym",
+  "name": "Metodo Rod",
+  "short_name": "Metodo Rod",
   "description": "Seguimiento de rutinas de gimnasio: series, descansos, calendario y progreso. Funciona sin internet.",
   "start_url": "./",
   "scope": "./",

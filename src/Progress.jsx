@@ -117,8 +117,8 @@ function Macros({ state, update }) {
 function SettingsSheet({ state, update, replaceAll, onClose }) {
   const fileRef = useRef(); const [msg, setMsg] = useState('')
   const exportData = () => {
-    const blob = new Blob([JSON.stringify({ app: 'metodo-h', version: 1, exportedAt: new Date().toISOString(), data: { ...state, active: null } })], { type: 'application/json' })
-    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `metodo-h-backup-${dateKey()}.json`; document.body.appendChild(a); a.click(); a.remove()
+    const blob = new Blob([JSON.stringify({ app: 'metodo-rod', version: 1, exportedAt: new Date().toISOString(), data: { ...state, active: null } })], { type: 'application/json' })
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `metodo-rod-backup-${dateKey()}.json`; document.body.appendChild(a); a.click(); a.remove()
     setTimeout(() => URL.revokeObjectURL(a.href), 2000); setMsg('Copia de seguridad descargada ✔')
   }
   const importData = async (e) => {
@@ -152,7 +152,7 @@ function SettingsSheet({ state, update, replaceAll, onClose }) {
       <input ref={fileRef} type="file" accept="application/json,.json" hidden onChange={importData} />
       {msg && <p className="text-center font-semibold text-neon my-2">{msg}</p>}
       <Button variant="danger" className="w-full mt-6" onClick={reset}><Trash2 size={20} /> Borrar todos los datos</Button>
-      <p className="text-xs text-muted mt-4 leading-snug">Basado en la guía “Método H”. Información general, no consejo médico: consulta a un profesional si tienes lesiones o dudas de salud.</p>
+      <p className="text-xs text-muted mt-4 leading-snug">Metodo Rod. Información general, no consejo médico: consulta a un profesional si tienes lesiones o dudas de salud.</p>
     </Sheet>
   )
 }
