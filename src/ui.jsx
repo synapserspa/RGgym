@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import { X } from 'lucide-react'
+import { useBackLayer } from './lib'
 import { figureSVG } from './figs-core'
 import { ZONE_COLOR } from './data'
 
@@ -50,6 +51,7 @@ export function Header({ title, subtitle, right }) {
 
 // Hoja inferior a pantalla casi completa
 export function Sheet({ open, onClose, title, children, footer }) {
+  useBackLayer(open, onClose)
   useEffect(() => {
     if (!open) return
     const onKey = (e) => e.key === 'Escape' && onClose()

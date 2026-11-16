@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Bot, Check, ChevronDown, ChevronUp, Flag, Minus, Pause, Play, Plus, SkipForward, Timer, Undo2, Vibrate, Volume2, VolumeX, X } from 'lucide-react'
-import { dateKey, fmtDur, fmtNum, fmtTime, repsStart, sessionVolume, uid, useNow, useWakeLock, vibrate } from './lib'
+import { dateKey, fmtDur, fmtNum, fmtTime, repsStart, sessionVolume, uid, useBackLayer, useNow, useWakeLock, vibrate } from './lib'
 import { playDone, playEnd, playGo, playTick, speak, unlockAudio } from './audio'
 import { Button, Card, Chip, ExerciseImage, Sheet, ZoneDot, cx, inputCls } from './ui'
 
@@ -87,6 +87,7 @@ export function ActiveWorkout({ state, update, onExit }) {
   const [summary, setSummary] = useState(false)
   const [notes, setNotes] = useState('')
   const [menu, setMenu] = useState(false)
+  useBackLayer(true, () => setMenu(true)) // "atrás" en pleno entrenamiento abre el menú en vez de salir
 
   // Valores iniciales de cada serie: la última serie del mismo ejercicio o los objetivos del plan
   useEffect(() => {

@@ -116,3 +116,39 @@ export function useNow(active = true, ms = 250) {
 
 // ---------- Métricas ----------
 export const sessionVolume = (sets) => sets.reduce((a, s) => a + (s.reps || 0) * (s.weight || 0), 0)
+
+// ---------- Botón "atrás" del celular ----------
+// Cada pantalla/hoja abierta apunta una entrada en el historial; "atrás" cierra la capa superior en vez de salir de la app.
+// En la pantalla principal, el primer "atrás" avisa y el segundo (dentro de 2 s) sale.
+const layers = []
+let ignorePops = 0; let armed = false; let rootToast = null; let backReady = false
+
+export function initBackNav(onRootBack) {
+  rootToast = onRootBack
+  if (backReady) return
+  backReady = true
+  history.replaceState({ root: 1 }, '')
+  history.pushState({ sentinel: 1 }, '')
+  window.addEventListener('popstate', () => {
+    if (ignorePops > 0) { ignorePops--; return }
+    const top = layers.pop()
+    if (top) { top.onClose(); return }
+    if (armed) { armed = false; history.back(); return }
+    armed = true; rootToast && rootToast()
+    history.pushState({ sentinel: 1 }, '')
+    setTimeout(() => { armed = false }, 2000)
+  })
+}
+
+export function useBackLayer(open, onClose) {
+  const ref = useRef(onClose); ref.current = onClose
+  useEffect(() => {
+    if (!open) return
+    const layer = { onClose: () => ref.current() }
+    layers.push(layer); history.pushState({ layer: layers.length }, '')
+    return () => {
+      const i = layers.indexOf(layer)
+      if (i >= 0) { layers.splice(i, 1); ignorePops++; history.back() } // se cerró desde la interfaz: quitar su entrada
+    }
+  }, [open])
+}

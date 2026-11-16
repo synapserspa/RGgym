@@ -1,6 +1,6 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { BarChart3, CalendarDays, Dumbbell, Library as LibIcon } from 'lucide-react'
-import { useStore } from './lib'
+import { initBackNav, useBackLayer, useStore } from './lib'
 import { cx } from './ui'
 import Today from './Today'
 import { ActiveWorkout } from './Active'
@@ -44,6 +44,9 @@ function Shell({ settings, children }) {
 export default function App() {
   const { state, update, replaceAll, saveError } = useStore()
   const [tab, setTab] = useState('today')
+  const [toast, setToast] = useState(false)
+  useEffect(() => { initBackNav(() => { setToast(true); setTimeout(() => setToast(false), 2000) }) }, [])
+  useBackLayer(tab !== 'today' && !state.active, () => setTab('today')) // atrás desde otra pestaña vuelve a "Entrenar"
 
   if (!state.settings.welcomed) return <Welcome onDone={(name) => update((s) => ({ ...s, settings: { ...s.settings, name: name.trim(), welcomed: true } }))} />
   if (state.active) return <Shell settings={state.settings}><ActiveWorkout state={state} update={update} onExit={() => setTab('progress')} /></Shell>
@@ -57,6 +60,7 @@ export default function App() {
         {tab === 'library' && <Library state={state} update={update} />}
         {tab === 'progress' && <Progress state={state} update={update} replaceAll={replaceAll} saveError={saveError} />}
       </main>
+      {toast && <div className="fixed bottom-24 inset-x-0 z-50 flex justify-center pointer-events-none"><div className="bg-surface2 border border-line rounded-full px-5 py-3 font-semibold shadow-lg">Presiona atrás otra vez para salir</div></div>}
       <nav className="fixed bottom-0 inset-x-0 z-30 bg-bg/95 backdrop-blur border-t border-line safe-bottom">
         <div className="max-w-xl mx-auto grid grid-cols-4">
           {TABS.map(({ id, label, icon: Icon }) => (
