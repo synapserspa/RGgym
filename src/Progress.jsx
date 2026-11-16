@@ -1,6 +1,7 @@
 import { useMemo, useRef, useState } from 'react'
-import { Calculator, Camera, ImagePlus, ChevronDown, ChevronUp, Download, Flame, Scale, Settings, Trash2, Upload, Trophy, ListChecks, Clock, Weight } from 'lucide-react'
+import { Calculator, Volume2, Camera, ImagePlus, ChevronDown, ChevronUp, Download, Flame, Scale, Settings, Trash2, Upload, Trophy, ListChecks, Clock, Weight } from 'lucide-react'
 import { HABITS, ZONE_COLOR } from './data'
+import { SOUNDS, VOLUMES, playEnd, speak, unlockAudio } from './audio'
 import { DAY_SHORT, addDays, compressImage, dateKey, fmtDate, fmtDur, fmtNum, mondayOf, uid } from './lib'
 import { Button, Card, Chip, Empty, Header, Sheet, ZoneDot, cx, inputCls } from './ui'
 
@@ -116,7 +117,15 @@ function Macros({ state, update }) {
 
 function SettingsSheet({ state, update, replaceAll, onClose }) {
   const fileRef = useRef(); const [msg, setMsg] = useState('')
-  const bgGal = useRef(); const bgCam = useRef()
+  const bgGal = useRef(); const bgCam = useRef(); const sndRef = useRef()
+  const pickSound = (e) => {
+    const f = e.target.files?.[0]; e.target.value = ''; if (!f) return
+    if (f.size > 1.5 * 1024 * 1024) { setMsg('El audio pesa más de 1,5 MB: elige uno más corto ✖'); return }
+    const r = new FileReader()
+    r.onload = () => { setSet({ customSound: r.result, customSoundName: f.name, soundEnd: 'custom' }); setMsg('Sonido cargado ✔') }
+    r.onerror = () => setMsg('No se pudo leer el audio ✖')
+    r.readAsDataURL(f)
+  }
   const setSet = (p) => update((s) => ({ ...s, settings: { ...s.settings, ...p } }))
   const pickBg = async (e) => {
     const f = e.target.files?.[0]; e.target.value = ''; if (!f) return
@@ -142,9 +151,37 @@ function SettingsSheet({ state, update, replaceAll, onClose }) {
       {label}<span className={state.settings[k] ? 'text-neon' : 'text-muted'}>{state.settings[k] ? 'ON' : 'OFF'}</span></button>)
   const photos = state.exercises.filter((e) => e.img).length
   return (
-    <Sheet open onClose={onClose} title="Ajustes">
+    <Sheet open onClose={onClose} title="Configuración">
       <h3 className="text-sm font-bold text-muted mb-2">TU NOMBRE</h3>
       <input className={inputCls + ' mb-5'} value={state.settings.name || ''} onChange={(e) => update((s) => ({ ...s, settings: { ...s.settings, name: e.target.value } }))} />
+      <h3 className="text-sm font-bold text-muted mb-2">SONIDO DE AVISO</h3>
+      <div className="text-xs text-muted font-semibold mb-1.5">Volumen</div>
+      <div className="flex gap-2 flex-wrap mb-3">{VOLUMES.map(([v, l]) => <Chip key={v} active={state.settings.volume === v} onClick={() => setSet({ volume: v })}>{l}</Chip>)}</div>
+      <div className="text-xs text-muted font-semibold mb-1.5">Sonido al terminar el descanso</div>
+      <div className="flex gap-2 flex-wrap mb-3">
+        {SOUNDS.map(([v, l]) => <Chip key={v} active={state.settings.soundEnd === v} onClick={() => setSet({ soundEnd: v })}>{l}</Chip>)}
+        {state.settings.customSound && <Chip active={state.settings.soundEnd === 'custom'} onClick={() => setSet({ soundEnd: 'custom' })}>Mío</Chip>}
+      </div>
+      <input ref={sndRef} type="file" accept="audio/*" hidden onChange={pickSound} />
+      <div className="grid grid-cols-2 gap-3 mb-2">
+        <Button onClick={() => { unlockAudio(); playEnd(state.settings) }}><Volume2 size={20} /> Probar</Button>
+        <Button variant="secondary" onClick={() => sndRef.current.click()}><Upload size={20} /> Cargar mío</Button>
+      </div>
+      {state.settings.customSound && <p className="text-sm text-muted mb-2">Sonido propio: <b className="text-white">{state.settings.customSoundName}</b> · <button className="text-red-400 font-semibold min-h-11" onClick={() => setSet({ customSound: null, customSoundName: '', soundEnd: state.settings.soundEnd === 'custom' ? 'alarma' : state.settings.soundEnd })}>quitar</button></p>}
+      <div className="space-y-2 my-3">
+        <Toggle k="sound" label="Sonido al terminar el descanso" />
+        <Toggle k="ticks" label="Pitidos en los últimos 10 segundos" />
+        <Toggle k="voice" label="Voz en la rutina automática" />
+        <Toggle k="vibrate" label="Vibración" />
+      </div>
+      <Button variant="secondary" className="w-full mb-6" onClick={() => { unlockAudio(); speak('Prepárate para la siguiente serie.', { ...state.settings, voice: true }) }}>Probar voz</Button>
+
+      <h3 className="text-sm font-bold text-muted mb-2">RUTINA AUTOMÁTICA</h3>
+      {[['secPerRep', 'Segundos por repetición', [2, 3, 4, 5]], ['prepSec', 'Cuenta inicial (seg)', [5, 10, 15, 20]], ['extraChange', 'Tiempo extra al cambiar de ejercicio (seg)', [5, 10, 20, 30]]].map(([k, l, opts]) => (
+        <div key={k} className="mb-3"><div className="text-xs text-muted font-semibold mb-1.5">{l}</div>
+          <div className="flex gap-2 flex-wrap">{opts.map((v) => <Chip key={v} active={state.settings[k] === v} onClick={() => setSet({ [k]: v })}>{v}</Chip>)}</div></div>))}
+      <div className="mb-6" />
+
       <h3 className="text-sm font-bold text-muted mb-2">FOTO DE FONDO</h3>
       {state.settings.bg && <div className="relative h-32 rounded-2xl overflow-hidden mb-3"><img src={state.settings.bg} alt="" className="w-full h-full object-cover" /><div className="absolute inset-0" style={{ background: `rgba(10,10,10,${state.settings.bgDim})` }} /></div>}
       <input ref={bgGal} type="file" accept="image/*" hidden onChange={pickBg} />
@@ -162,7 +199,6 @@ function SettingsSheet({ state, update, replaceAll, onClose }) {
       <h3 className="text-sm font-bold text-muted mb-2">DESCANSO PREDETERMINADO</h3>
       <div className="flex gap-2 flex-wrap mb-5">{[[0, 'Auto'], [60, '60s'], [90, '90s'], [120, '2 min'], [180, '3 min']].map(([v, l]) => (
         <Chip key={v} active={state.settings.rest === v} onClick={() => update((s) => ({ ...s, settings: { ...s.settings, rest: v } }))}>{l}</Chip>))}</div>
-      <div className="space-y-2 mb-6"><Toggle k="sound" label="Sonido al terminar el descanso" /><Toggle k="vibrate" label="Vibración" /></div>
       <h3 className="text-sm font-bold text-muted mb-2">COPIA DE SEGURIDAD</h3>
       <p className="text-sm text-muted mb-3">Exporta todo (historial, rutinas, ejercicios y {photos} foto{photos === 1 ? '' : 's'}) a un archivo JSON. Guárdalo en tu nube o envíatelo.</p>
       <div className="grid grid-cols-2 gap-3 mb-2">
@@ -192,11 +228,11 @@ export default function Progress({ state, update, replaceAll, saveError }) {
   return (
     <div>
       <Header title="Progreso" subtitle="Lo que se mide, mejora"
-        right={<button aria-label="Ajustes" onClick={() => setSettings(true)} className="size-14 rounded-2xl bg-surface border border-line flex items-center justify-center"><Settings size={26} /></button>} />
+        right={<button aria-label="Configuración" onClick={() => setSettings(true)} className="size-14 rounded-2xl bg-surface border border-line flex items-center justify-center"><Settings size={26} /></button>} />
       <div className="px-4 pb-4">
         {saveError && <div className="bg-red-600/20 border border-red-500 rounded-2xl p-3 mb-3 text-sm">⚠ No se pudo guardar (almacenamiento lleno). Exporta una copia y libera espacio quitando fotos.</div>}
         <div className="grid grid-cols-2 gap-3 mb-4">
-          {[[Trophy, stats.total, 'Entrenos'], [Flame, stats.streak, 'Días seguidos'], [Clock, stats.week, 'Esta semana'], [Weight, fmtNum(stats.volume), 'Volumen total kg']].map(([Icon, v, l]) => (
+          {[[Trophy, stats.total, 'Entrenamientos'], [Flame, stats.streak, 'Días seguidos'], [Clock, stats.week, 'Esta semana'], [Weight, fmtNum(stats.volume), 'Volumen total kg']].map(([Icon, v, l]) => (
             <Card key={l} className="!p-3.5"><Icon size={20} className="text-neon mb-1" /><div className="text-3xl font-black leading-none">{v}</div><div className="text-xs text-muted mt-1">{l}</div></Card>))}
         </div>
         {chart.length > 1 && <Card className="mb-4"><div className="text-sm font-bold text-muted mb-2">VOLUMEN POR SESIÓN (kg)</div><VolumeChart data={chart} /></Card>}

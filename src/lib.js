@@ -37,12 +37,23 @@ function initialState() {
   }
 }
 
+// Migración de datos guardados: actualiza nombres/instrucciones de ejercicios precargados (español latino)
+const DATA_VERSION = 2
+function migrate(s) {
+  const out = { ...initialState(), ...s, settings: { ...DEFAULT_SETTINGS, ...(s.settings || {}) } }
+  if ((s.dataVersion || 1) < DATA_VERSION) {
+    const seed = Object.fromEntries(SEED_EXERCISES.map((e) => [e.id, e]))
+    out.exercises = (out.exercises || []).map((e) => (!e.custom && seed[e.id] ? { ...e, name: seed[e.id].name, steps: seed[e.id].steps } : e))
+  }
+  out.dataVersion = DATA_VERSION
+  return out
+}
+
 function load() {
   try {
     const raw = localStorage.getItem(KEY)
     if (!raw) return initialState()
-    const s = JSON.parse(raw)
-    return { ...initialState(), ...s, settings: { ...DEFAULT_SETTINGS, ...(s.settings || {}) } }
+    return migrate(JSON.parse(raw))
   } catch { return initialState() }
 }
 
@@ -53,7 +64,7 @@ export function useStore() {
     try { localStorage.setItem(KEY, JSON.stringify(state)); setSaveError(false) } catch { setSaveError(true) }
   }, [state])
   const update = useCallback((fn) => setState((s) => fn(s)), [])
-  const replaceAll = useCallback((s) => setState({ ...initialState(), ...s, settings: { ...DEFAULT_SETTINGS, ...(s.settings || {}) } }), [])
+  const replaceAll = useCallback((s) => setState(migrate(s)), [])
   return { state, update, replaceAll, saveError }
 }
 
@@ -75,28 +86,7 @@ export function compressImage(file, max = 640, quality = 0.72) {
   })
 }
 
-// ---------- Sonido y vibración ----------
-let audioCtx
-export function beep(times = 3) {
-  try {
-    audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)()
-    if (audioCtx.state === 'suspended') audioCtx.resume()
-    for (let i = 0; i < times; i++) {
-      const o = audioCtx.createOscillator(); const g = audioCtx.createGain()
-      const t = audioCtx.currentTime + i * 0.28
-      o.type = 'sine'; o.frequency.value = i === times - 1 ? 988 : 784
-      g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.25, t + 0.02); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.22)
-      o.connect(g).connect(audioCtx.destination); o.start(t); o.stop(t + 0.25)
-    }
-  } catch { /* sin audio */ }
-}
-// Desbloquea el audio con un gesto del usuario (necesario en móviles)
-export function unlockAudio() {
-  try {
-    audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)()
-    if (audioCtx.state === 'suspended') audioCtx.resume()
-  } catch { /* noop */ }
-}
+// ---------- Vibración ----------
 export const vibrate = (p) => { try { navigator.vibrate && navigator.vibrate(p) } catch { /* noop */ } }
 
 // Mantener la pantalla encendida durante el entrenamiento

@@ -80,7 +80,7 @@ function ExerciseForm({ initial, onSave, onDelete, onClose }) {
               {f.steps.length > 1 && <button aria-label="Quitar paso" className="size-14 rounded-2xl bg-surface2 shrink-0 text-xl" onClick={() => set('steps', f.steps.filter((_, j) => j !== i))}>×</button>}
             </div>
           ))}
-          <Button variant="ghost" className="min-h-11 px-0" onClick={() => set('steps', [...f.steps, ''])}><Plus size={20} /> Añadir paso</Button>
+          <Button variant="ghost" className="min-h-11 px-0" onClick={() => set('steps', [...f.steps, ''])}><Plus size={20} /> Agregar paso</Button>
         </div>
       </Field>
     </Sheet>
@@ -94,7 +94,7 @@ export function ExercisePicker({ exercises, onPick, onClose, title = 'Elegir eje
   const toggle = (e) => (multi ? setSel((s) => (s.includes(e.id) ? s.filter((x) => x !== e.id) : [...s, e.id])) : onPick(e))
   return (
     <Sheet open onClose={onClose} title={title}
-      footer={multi && <Button className="w-full" disabled={!sel.length} onClick={() => onDone(sel)}>Añadir {sel.length || ''} ejercicio{sel.length === 1 ? '' : 's'}</Button>}>
+      footer={multi && <Button className="w-full" disabled={!sel.length} onClick={() => onDone(sel)}>Agregar {sel.length || ''} ejercicio{sel.length === 1 ? '' : 's'}</Button>}>
       <input className={inputCls + ' mb-3'} placeholder="Buscar…" value={q} onChange={(e) => setQ(e.target.value)} />
       <div className="flex gap-2 overflow-x-auto no-scrollbar pb-3 -mx-5 px-5">
         {['Todos', ...ZONES].map((z) => <Chip key={z} active={zone === z} color={ZONE_COLOR[z]} onClick={() => setZone(z)}>{z}</Chip>)}
@@ -102,7 +102,7 @@ export function ExercisePicker({ exercises, onPick, onClose, title = 'Elegir eje
       <div className="space-y-2">
         {list.map((e) => (
           <button key={e.id} onClick={() => toggle(e)} className={'w-full flex items-center gap-3 p-2 rounded-2xl border text-left ' + (sel.includes(e.id) ? 'border-neon bg-neon/10' : 'border-line bg-surface')}>
-            <ExerciseImage ex={e} className="size-16 shrink-0" />
+            <ExerciseImage ex={e} compact className="size-16 shrink-0" />
             <div className="min-w-0"><div className="font-bold text-lg leading-tight">{e.name}</div><div className="text-muted text-sm flex items-center gap-1.5"><ZoneDot zone={e.zone} />{e.zone} · {e.level}</div></div>
           </button>
         ))}
@@ -126,7 +126,7 @@ export default function Library({ state, update }) {
 
   return (
     <div>
-      <Header title="Biblioteca" subtitle={`${exercises.length} ejercicios`}
+      <Header title="Ejercicios" subtitle={`${exercises.length} ejercicios`}
         right={<button aria-label="Nuevo ejercicio" onClick={() => setForm('new')} className="size-14 rounded-2xl bg-neon text-black flex items-center justify-center"><Plus size={30} strokeWidth={3} /></button>} />
       <div className="px-4">
         <div className="relative mb-3">

@@ -59,8 +59,8 @@ export function PlanEditor({ dow, date, state, update, onClose }) {
           )
         })}
       </div>
-      <Button className="w-full" onClick={() => setPicker(true)}><Plus size={22} /> Añadir ejercicios</Button>
-      {picker && <ExercisePicker multi exercises={state.exercises} onClose={() => setPicker(false)} onDone={addExercises} title="Añadir a la rutina" />}
+      <Button className="w-full" onClick={() => setPicker(true)}><Plus size={22} /> Agregar ejercicios</Button>
+      {picker && <ExercisePicker multi exercises={state.exercises} onClose={() => setPicker(false)} onDone={addExercises} title="Agregar a la rutina" />}
     </Sheet>
   )
 }

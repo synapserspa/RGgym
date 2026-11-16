@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
-import { X, Dumbbell, Footprints, Activity, ArrowUp, ArrowDown, Flame } from 'lucide-react'
+import { X } from 'lucide-react'
+import { figureSVG } from './figs-core'
 import { ZONE_COLOR } from './data'
 
 export const cx = (...a) => a.filter(Boolean).join(' ')
@@ -79,21 +80,15 @@ export const Field = ({ label, children }) => (
 )
 export const inputCls = 'w-full min-h-14 rounded-2xl bg-surface border border-line px-4 text-lg text-white placeholder-muted focus:outline-none focus:border-neon'
 
-// Ilustración de ejercicio: foto del usuario o placeholder SVG limpio por zona
-const ZONE_ICON = { Pecho: Dumbbell, Espalda: ArrowDown, Piernas: Footprints, Hombros: ArrowUp, Brazos: Dumbbell, Abdomen: Flame, Cardio: Activity }
-export function ExerciseImage({ ex, className = '', rounded = 'rounded-2xl' }) {
+// Ilustración del ejercicio: foto del usuario o dibujo esquemático (inicio → final) según el ejercicio
+export function ExerciseImage({ ex, className = '', rounded = 'rounded-2xl', compact = false }) {
   if (ex.img) return <img src={ex.img} alt={ex.name} className={cx('object-cover', rounded, className)} />
-  const color = ZONE_COLOR[ex.zone] || '#888'
-  const Icon = ZONE_ICON[ex.zone] || Dumbbell
+  const color = ZONE_COLOR[ex.zone] || '#c6f432'
+  const svg = figureSVG(ex.id, ex.zone, color, compact)
   return (
-    <div className={cx('flex flex-col items-center justify-center relative overflow-hidden', rounded, className)}
-      style={{ background: `radial-gradient(circle at 30% 20%, ${color}33, #141414 70%)`, border: `1px solid ${color}44` }}>
-      <svg className="absolute inset-0 w-full h-full opacity-20" viewBox="0 0 100 100" preserveAspectRatio="none">
-        <defs><pattern id={'g' + ex.zone} width="10" height="10" patternUnits="userSpaceOnUse"><path d="M10 0H0V10" fill="none" stroke={color} strokeWidth=".4" /></pattern></defs>
-        <rect width="100" height="100" fill={`url(#g${ex.zone})`} />
-      </svg>
-      <Icon size={36} color={color} strokeWidth={2.2} className="relative" />
-    </div>
+    <div role="img" aria-label={`Dibujo del ejercicio ${ex.name}`} className={cx('flex items-center justify-center relative overflow-hidden p-1.5', rounded, className)}
+      style={{ background: `radial-gradient(circle at 30% 20%, ${color}26, #11161d 70%)`, border: `1px solid ${color}44` }}
+      dangerouslySetInnerHTML={{ __html: svg }} />
   )
 }
 

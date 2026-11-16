@@ -25,13 +25,13 @@ export const SEED_EXERCISES = [
     'Ajusta el banco a 30-45°.', 'Baja controlado hasta el pecho alto, codos a ~45° del torso.', 'Empuja hacia arriba sin bloquear los codos de golpe.', 'Mantén los omóplatos juntos y los pies firmes.',
   ], { sets: 3, reps: '6-10', rir: '1-2' }),
   ex('press-banca', 'Press banca / máquina', 'Pecho', 'Intermedio', 150, [
-    'Túmbate con los ojos bajo la barra y los pies firmes en el suelo.', 'Agarre algo más ancho que los hombros.', 'Baja la barra al pecho medio con control.', 'Empuja explosivo hasta casi extender los codos.',
+    'Acuéstate con los ojos bajo la barra y los pies firmes en el suelo.', 'Agarre algo más ancho que los hombros.', 'Baja la barra al pecho medio con control.', 'Empuja explosivo hasta casi extender los codos.',
   ], { sets: 3, reps: '8-12', rir: '1-2' }),
   ex('aperturas-polea', 'Aperturas en polea', 'Pecho', 'Principiante', 75, [
     'Poleas a la altura de los hombros, un paso adelante.', 'Codos ligeramente flexionados y fijos.', 'Abre hasta sentir el estiramiento del pecho.', 'Junta las manos frente al pecho apretando.',
   ], { sets: 2, reps: '10-15', rir: '0-1' }),
   ex('aperturas-mancuernas', 'Aperturas con mancuernas', 'Pecho', 'Principiante', 75, [
-    'Tumbado en banco plano, mancuernas sobre el pecho.', 'Abre los brazos en arco con codos semiflexionados.', 'Baja hasta notar estiramiento, sin pasar la línea del hombro.', 'Cierra apretando el pecho.',
+    'Acostado en banco plano, mancuernas sobre el pecho.', 'Abre los brazos en arco con codos semiflexionados.', 'Baja hasta notar estiramiento, sin pasar la línea del hombro.', 'Cierra apretando el pecho.',
   ], { sets: 2, reps: '12-15', rir: '0-1' }),
   ex('fondos', 'Fondos en paralelas', 'Pecho', 'Avanzado', 90, [
     'Sujeta las barras con brazos extendidos y torso algo inclinado.', 'Baja hasta que los hombros queden a la altura de los codos.', 'Empuja hasta extender sin bloquear.', 'Usa asistencia o lastre según tu nivel.',
@@ -61,7 +61,7 @@ export const SEED_EXERCISES = [
   ex('curl-femoral', 'Curl femoral', 'Piernas', 'Principiante', 75, [
     'Ajusta la máquina con el rodillo sobre los tobillos.', 'Flexiona llevando los talones hacia los glúteos.', 'Controla la fase de bajada (2-3 s).', 'No levantes la cadera.',
   ], { sets: 2, reps: '10-15', rir: '0-1' }),
-  ex('gemelos-pie', 'Gemelos de pie', 'Piernas', 'Principiante', 60, [
+  ex('gemelos-pie', 'Pantorrillas de pie', 'Piernas', 'Principiante', 60, [
     'Apoya la parte delantera del pie en el borde.', 'Baja el talón hasta estirar al máximo.', 'Sube lo más alto posible y pausa 1 s.', 'Rango completo, sin rebotar.',
   ], { sets: 3, reps: '10-15', rir: '0-1' }),
   ex('hip-thrust', 'Hip thrust', 'Piernas', 'Intermedio', 120, [
@@ -76,7 +76,7 @@ export const SEED_EXERCISES = [
   ex('curl-femoral-sentado', 'Curl femoral sentado', 'Piernas', 'Principiante', 75, [
     'Ajusta los muslos fijos bajo el rodillo.', 'Flexiona llevando los talones hacia abajo y atrás.', 'Pausa y aprieta isquios.', 'Vuelve lento.',
   ], { sets: 2, reps: '10-15', rir: '0-1' }),
-  ex('gemelos-sentado', 'Gemelos sentado', 'Piernas', 'Principiante', 60, [
+  ex('gemelos-sentado', 'Pantorrillas sentado', 'Piernas', 'Principiante', 60, [
     'Rodillas a 90° con el rodillo sobre los muslos.', 'Baja el talón estirando el sóleo.', 'Sube y pausa 1 s.', 'Rango completo.',
   ], { sets: 3, reps: '12-15', rir: '0-1' }),
 
@@ -99,7 +99,7 @@ export const SEED_EXERCISES = [
     'Codos pegados a los costados.', 'Extiende hasta bloquear suave abajo.', 'Aprieta el tríceps 1 s.', 'Sube sin mover los codos.',
   ], { sets: 2, reps: '10-15', rir: '0-1' }),
   ex('press-frances', 'Press francés', 'Brazos', 'Intermedio', 90, [
-    'Tumbado, barra sobre el pecho con brazos extendidos.', 'Flexiona solo los codos llevando la barra a la frente.', 'Mantén los codos apuntando al techo.', 'Extiende apretando el tríceps.',
+    'Acostado, barra sobre el pecho con brazos extendidos.', 'Flexiona solo los codos llevando la barra a la frente.', 'Mantén los codos apuntando al techo.', 'Extiende apretando el tríceps.',
   ], { sets: 2, reps: '8-12', rir: '1' }),
 
   // ABDOMEN
@@ -114,10 +114,10 @@ export const SEED_EXERCISES = [
   ex('caminata', 'Caminata (pasos / NEAT)', 'Cardio', 'Principiante', 0, [
     'Objetivo mínimo: 10.000+ pasos al día.', 'Ritmo vivo que permita hablar.', 'Es salud pura y te permite comer más en déficit.', 'Camina en bloques de 20-30 min.',
   ], { sets: 1, reps: '30 min', rir: '-' }),
-  ex('cinta-bici', 'Cardio en cinta / bici', 'Cardio', 'Principiante', 0, [
+  ex('cinta-bici', 'Cardio en trotadora / bicicleta', 'Cardio', 'Principiante', 0, [
     'Calienta 3-5 min a ritmo suave.', 'Mantén un ritmo moderado constante.', 'Zona 2: puedes hablar con frases cortas.', 'Termina con 3 min de vuelta a la calma.',
   ], { sets: 1, reps: '20 min', rir: '-' }),
-  ex('comba', 'Saltar la comba', 'Cardio', 'Intermedio', 45, [
+  ex('comba', 'Saltar la cuerda', 'Cardio', 'Intermedio', 45, [
     'Salta con las puntas de los pies.', 'Muñecas mueven la cuerda, codos pegados.', 'Saltos bajos y rítmicos.', 'Intervalos de 30-60 s con descanso.',
   ], { sets: 4, reps: '45 s', rir: '-' }),
 ]
@@ -165,7 +165,7 @@ export const SEED_PLAN = {
 export const HABITS = [
   { id: 'rutina', label: 'Rutina de mañana (4 pasos)' },
   { id: '345', label: 'Método 3-4-5 escrito' },
-  { id: 'entreno', label: 'Entreno completado y registrado' },
+  { id: 'entreno', label: 'Entrenamiento completado y registrado' },
   { id: 'proteina', label: 'Proteína objetivo alcanzada' },
   { id: 'calorias', label: 'Calorías dentro del objetivo' },
   { id: 'pasos', label: '10.000+ pasos' },
@@ -173,4 +173,6 @@ export const HABITS = [
   { id: 'sueno', label: '8 h de sueño' },
 ]
 
-export const DEFAULT_SETTINGS = { rest: 0, sound: true, vibrate: true, circuit: false, name: '', welcomed: false, bg: null, bgDim: 0.75 }
+export const DEFAULT_SETTINGS = { rest: 0, sound: true, vibrate: true, circuit: false, name: '', welcomed: false, bg: null, bgDim: 0.75,
+  volume: 'alto', soundEnd: 'alarma', customSound: null, customSoundName: '', ticks: true, voice: true,
+  secPerRep: 3, prepSec: 10, extraChange: 10 }
