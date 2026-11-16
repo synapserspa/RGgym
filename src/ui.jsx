@@ -59,7 +59,7 @@ export function Sheet({ open, onClose, title, children, footer }) {
   return (
     <div className="fixed inset-0 z-40 flex flex-col justify-end">
       <div className="absolute inset-0 bg-black/70" onClick={onClose} />
-      <div className="relative slide-up bg-bg border-t border-line rounded-t-3xl max-h-[92%] flex flex-col">
+      <div className="relative slide-up bg-[#0a0a0a] border-t border-line rounded-t-3xl max-h-[92%] flex flex-col">
         <div className="flex items-center justify-between px-5 pt-4 pb-2">
           <h2 className="text-2xl font-black">{title}</h2>
           <button aria-label="Cerrar" onClick={onClose} className="size-12 rounded-full bg-surface2 flex items-center justify-center"><X size={24} /></button>

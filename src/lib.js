@@ -28,6 +28,7 @@ function initialState() {
   return {
     exercises: SEED_EXERCISES,
     plan: SEED_PLAN,
+    overrides: {},     // plan solo para una fecha concreta: { 'YYYY-MM-DD': {label,zones,items,rest} }
     history: [],
     measures: [],      // { id, date, weight, waist, steps, sleep }
     habits: {},        // { 'YYYY-MM-DD': ['rutina', ...] }

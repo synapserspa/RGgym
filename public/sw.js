@@ -1,5 +1,5 @@
 // Service Worker: funcionamiento offline (precache + stale-while-revalidate)
-const CACHE = 'metodo-rod-v2'
+const CACHE = 'metodo-rod-v3'
 
 self.addEventListener('install', (event) => {
   event.waitUntil((async () => {
@@ -30,6 +30,14 @@ self.addEventListener('fetch', (event) => {
   if (req.method !== 'GET' || new URL(req.url).origin !== self.location.origin) return
   event.respondWith((async () => {
     const cache = await caches.open(CACHE)
+    // Páginas: red primero (siempre la versión nueva); sin conexión, la copia guardada
+    if (req.mode === 'navigate') {
+      try {
+        const res = await fetch(req)
+        if (res && res.ok) { cache.put(self.registration.scope + 'index.html', res.clone()); return res }
+      } catch (e) { /* offline */ }
+      return (await cache.match(self.registration.scope + 'index.html')) || (await cache.match(self.registration.scope)) || new Response('Sin conexión', { status: 503 })
+    }
     const cached = await cache.match(req, { ignoreSearch: true })
     const network = fetch(req).then((res) => {
       if (res && res.ok) cache.put(req, res.clone())

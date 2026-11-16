@@ -23,7 +23,7 @@ function buildSteps(items, mode) {
 // ---------- Pantalla "Entrenar hoy" ----------
 export default function Today({ state, update, onStartTraining }) {
   const now = new Date(); const dow = now.getDay(); const k = dateKey(now)
-  const plan = state.plan[dow]; const rest = isRest(plan)
+  const hasOverride = !!state.overrides?.[k]; const plan = state.overrides?.[k] || state.plan[dow]; const rest = isRest(plan)
   const exMap = useMemo(() => Object.fromEntries(state.exercises.map((e) => [e.id, e])), [state.exercises])
   const doneToday = state.history.filter((h) => h.date === k)
   const [detail, setDetail] = useState(null); const [edit, setEdit] = useState(false)
@@ -33,7 +33,7 @@ export default function Today({ state, update, onStartTraining }) {
   const start = () => {
     unlockAudio()
     const items = plan.items.filter((i) => exMap[i.exId] && i.sets > 0).map((i) => ({ ...i }))
-    update((s) => ({ ...s, settings: { ...s.settings, circuit: mode === 'circuit' }, active: { dow, label: plan.label || 'Entrenamiento', zones: plan.zones, mode, items, startedAt: Date.now(), logs: [], pos: 0, restEnd: null, restTotal: 0 } }))
+    update((s) => ({ ...s, settings: { ...s.settings, circuit: mode === 'circuit' }, active: { dow, key: hasOverride ? k : null, label: plan.label || 'Entrenamiento', zones: plan.zones, mode, items, startedAt: Date.now(), logs: [], pos: 0, restEnd: null, restTotal: 0 } }))
     onStartTraining()
   }
 
@@ -94,7 +94,7 @@ export default function Today({ state, update, onStartTraining }) {
         )}
       </div>
       <ExerciseDetail ex={detail} onClose={() => setDetail(null)} />
-      {edit && <PlanEditor dow={dow} state={state} update={update} onClose={() => setEdit(false)} />}
+      {edit && <PlanEditor dow={dow} date={k} state={state} update={update} onClose={() => setEdit(false)} />}
     </div>
   )
 }
@@ -190,11 +190,13 @@ export function ActiveWorkout({ state, update, onExit }) {
     // Recordar el último peso usado de cada ejercicio en el plan (sobrecarga progresiva)
     const lastW = {}; a.logs.forEach((l) => { if (l.weight) lastW[l.exId] = l.weight })
     update((s) => {
-      const plan = { ...s.plan }
-      if (plan[a.dow]) plan[a.dow] = { ...plan[a.dow], items: plan[a.dow].items.map((it) => (lastW[it.exId] ? { ...it, weight: lastW[it.exId] } : it)) }
+      const plan = { ...s.plan }; const overrides = { ...(s.overrides || {}) }
+      const upd = (p) => ({ ...p, items: p.items.map((it) => (lastW[it.exId] ? { ...it, weight: lastW[it.exId] } : it)) })
+      if (a.key && overrides[a.key]) overrides[a.key] = upd(overrides[a.key])
+      else if (plan[a.dow]) plan[a.dow] = upd(plan[a.dow])
       const day = rec.date
       const habits = { ...s.habits, [day]: [...new Set([...(s.habits[day] || []), 'entreno'])] }
-      return { ...s, plan, habits, history: [rec, ...s.history], active: null }
+      return { ...s, plan, overrides, habits, history: [rec, ...s.history], active: null }
     })
     onExit()
   }

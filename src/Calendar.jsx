@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { ArrowDown, ArrowUp, Check, ChevronLeft, ChevronRight, Moon, Plus, Trash2, Play, Pencil } from 'lucide-react'
+import { ArrowDown, ArrowUp, Check, Dumbbell, ChevronLeft, ChevronRight, Moon, Plus, Trash2, Play, Pencil } from 'lucide-react'
 import { ZONES, ZONE_COLOR } from './data'
 import { DAY_NAMES, DAY_SHORT, MONTHS, addDays, dateKey, fmtDur, fmtNum, mondayOf, parseKey } from './lib'
 import { Button, Card, Chip, Header, Sheet, ZoneDot, cx, inputCls } from './ui'
@@ -8,11 +8,18 @@ import { ExercisePicker } from './Library'
 export const isRest = (day) => !day || day.rest || !day.items?.length
 
 // ---------- Editor del plan de un día de la semana ----------
-export function PlanEditor({ dow, state, update, onClose }) {
-  const plan = state.plan[dow] || { label: '', zones: [], items: [] }
+const EMPTY = { label: '', zones: [], items: [] }
+export const planFor = (state, date) => state.overrides?.[dateKey(date)] || state.plan[date.getDay()]
+
+// date (YYYY-MM-DD) => edita solo ese día; sin date => edita el plan de ese día de la semana (se repite siempre)
+export function PlanEditor({ dow, date, state, update, onClose }) {
+  const plan = (date && state.overrides?.[date]) || state.plan[dow] || EMPTY
   const [picker, setPicker] = useState(false)
   const exMap = useMemo(() => Object.fromEntries(state.exercises.map((e) => [e.id, e])), [state.exercises])
-  const patch = (p) => update((s) => ({ ...s, plan: { ...s.plan, [dow]: { ...(s.plan[dow] || { label: '', zones: [], items: [] }), ...p } } }))
+  const patch = (p) => update((s) => {
+    const next = { ...((date && s.overrides?.[date]) || s.plan[dow] || EMPTY), ...p }
+    return date ? { ...s, overrides: { ...(s.overrides || {}), [date]: next } } : { ...s, plan: { ...s.plan, [dow]: next } }
+  })
   const setItem = (i, p) => patch({ items: plan.items.map((it, j) => (j === i ? { ...it, ...p } : it)) })
   const move = (i, d) => { const a = [...plan.items]; const j = i + d; if (j < 0 || j >= a.length) return; [a[i], a[j]] = [a[j], a[i]]; patch({ items: a }) }
   const toggleZone = (z) => patch({ zones: plan.zones.includes(z) ? plan.zones.filter((x) => x !== z) : [...plan.zones, z] })
@@ -23,8 +30,8 @@ export function PlanEditor({ dow, state, update, onClose }) {
   }
 
   return (
-    <Sheet open onClose={onClose} title={`Plan del ${DAY_NAMES[dow].toLowerCase()}`}>
-      <p className="text-muted text-sm mb-4">Este plan se repite todas las semanas en este día.</p>
+    <Sheet open onClose={onClose} title={date ? `Solo el ${parseKey(date).getDate()} de ${MONTHS[parseKey(date).getMonth()].toLowerCase()}` : `Todos los ${DAY_NAMES[dow].toLowerCase()}`}>
+      <p className="text-muted text-sm mb-4">{date ? 'Los cambios valen únicamente para este día.' : 'Este plan se repite todas las semanas en este día.'}</p>
       <input className={inputCls + ' mb-4'} placeholder="Nombre (ej. Pecho y tríceps)" value={plan.label} onChange={(e) => patch({ label: e.target.value })} />
       <button onClick={() => patch({ rest: !plan.rest })} className={cx('w-full min-h-14 rounded-2xl border flex items-center justify-center gap-2 font-bold mb-4', plan.rest ? 'bg-surface2 border-neon text-neon' : 'bg-surface border-line text-white')}>
         <Moon size={20} /> {plan.rest ? 'Día de descanso (activo)' : 'Marcar como día de descanso'}
@@ -60,10 +67,10 @@ export function PlanEditor({ dow, state, update, onClose }) {
 
 // Estado de un día: 'done' | 'planned' | 'rest'
 function dayInfo(date, state) {
-  const k = dateKey(date); const dow = date.getDay(); const plan = state.plan[dow]
+  const k = dateKey(date); const dow = date.getDay(); const custom = !!state.overrides?.[k]; const plan = state.overrides?.[k] || state.plan[dow]
   const sessions = state.history.filter((h) => h.date === k)
   const rest = isRest(plan)
-  return { k, dow, plan, sessions, status: sessions.length ? 'done' : rest ? 'rest' : 'planned', rest }
+  return { k, dow, plan, custom, sessions, status: sessions.length ? 'done' : rest ? 'rest' : 'planned', rest }
 }
 
 function DayMarks({ info }) {
@@ -76,7 +83,7 @@ export default function Calendar({ state, update, onStart }) {
   const [view, setView] = useState('mes')
   const [cursor, setCursor] = useState(() => new Date())
   const [sel, setSel] = useState(null) // Date seleccionada
-  const [editDow, setEditDow] = useState(null)
+  const [editDow, setEditDow] = useState(null) // { dow, date }
   const todayK = dateKey()
   const exMap = useMemo(() => Object.fromEntries(state.exercises.map((e) => [e.id, e])), [state.exercises])
 
@@ -92,6 +99,13 @@ export default function Calendar({ state, update, onStart }) {
   const title = view === 'mes' ? `${MONTHS[cursor.getMonth()]} ${cursor.getFullYear()}` : `${weekDays[0].getDate()} ${MONTHS[weekDays[0].getMonth()].slice(0, 3)} – ${weekDays[6].getDate()} ${MONTHS[weekDays[6].getMonth()].slice(0, 3)}`
 
   const selInfo = sel && dayInfo(sel, state)
+  // Cambia solo ese día entre descanso y entrenamiento
+  const toggleRest = (d, info) => {
+    const base = info.plan || EMPTY
+    if (info.rest && !base.items?.length) { setEditDow({ dow: d.getDay(), date: info.k }); setSel(null); return }
+    update((s) => ({ ...s, overrides: { ...(s.overrides || {}), [info.k]: { ...base, rest: !info.rest } } }))
+    setSel(null)
+  }
 
   return (
     <div>
@@ -141,7 +155,8 @@ export default function Calendar({ state, update, onStart }) {
           </div>
         )}
 
-        <div className="flex gap-4 justify-center text-xs text-muted mt-4 pb-4 flex-wrap">
+        <p className="text-center text-sm text-neon/80 mt-3">Toca cualquier día para cambiarlo entre entrenamiento y descanso, o editar su rutina.</p>
+        <div className="flex gap-4 justify-center text-xs text-muted mt-3 pb-4 flex-wrap">
           <span className="flex items-center gap-1"><Check size={14} className="text-neon" strokeWidth={4} /> Completado</span>
           <span className="flex items-center gap-1"><ZoneDot zone="Pecho" size={8} /><ZoneDot zone="Espalda" size={8} /> Planificado</span>
           <span className="flex items-center gap-1"><Moon size={12} /> Descanso</span>
@@ -150,11 +165,18 @@ export default function Calendar({ state, update, onStart }) {
 
       {sel && (
         <Sheet open onClose={() => setSel(null)} title={`${DAY_NAMES[sel.getDay()]} ${sel.getDate()}`}
-          footer={<div className="flex gap-3">
-            <Button variant="secondary" className="flex-1" onClick={() => { setEditDow(sel.getDay()); setSel(null) }}><Pencil size={20} /> Editar plan</Button>
-            {selInfo.k === todayK && selInfo.status !== 'rest' && <Button className="flex-1" onClick={() => { setSel(null); onStart() }}><Play size={20} fill="black" /> Entrenar</Button>}
+          footer={<div className="space-y-2.5">
+            {selInfo.k === todayK && selInfo.status !== 'rest' && <Button className="w-full" onClick={() => { setSel(null); onStart() }}><Play size={20} fill="black" /> Entrenar hoy</Button>}
+            <Button variant="secondary" className="w-full" onClick={() => toggleRest(sel, selInfo)}>
+              {selInfo.rest ? <><Dumbbell size={20} /> Convertir en día de entrenamiento</> : <><Moon size={20} /> Convertir en día de descanso</>}
+            </Button>
+            <div className="space-y-2.5">
+              <Button variant="secondary" className="w-full !text-base" onClick={() => { setEditDow({ dow: sel.getDay(), date: selInfo.k }); setSel(null) }}><Pencil size={18} /> Editar solo este día</Button>
+              <Button variant="secondary" className="w-full !text-base" onClick={() => { setEditDow({ dow: sel.getDay() }); setSel(null) }}><Pencil size={18} /> Todos los {DAY_NAMES[sel.getDay()].toLowerCase()}</Button>
+            </div>
+            {selInfo.custom && <button className="w-full min-h-11 text-neon font-bold" onClick={() => { update((s) => { const o = { ...(s.overrides || {}) }; delete o[selInfo.k]; return { ...s, overrides: o } }); setSel(null) }}>Volver al plan semanal</button>}
           </div>}>
-          <div className="text-muted mb-3">{MONTHS[sel.getMonth()]} {sel.getFullYear()}</div>
+          <div className="text-muted mb-3">{MONTHS[sel.getMonth()]} {sel.getFullYear()}{selInfo.custom && <span className="text-neon font-bold"> · día personalizado</span>}</div>
           <Card className="mb-4">
             <div className="text-xl font-black mb-1">{selInfo.plan?.label || 'Sin plan'}</div>
             <div className="flex flex-wrap gap-3 text-sm text-muted mb-3">{selInfo.plan?.zones.map((z) => <span key={z} className="flex items-center gap-1.5"><ZoneDot zone={z} />{z}</span>)}</div>
@@ -171,7 +193,7 @@ export default function Calendar({ state, update, onStart }) {
           ))}
         </Sheet>
       )}
-      {editDow !== null && <PlanEditor dow={editDow} state={state} update={update} onClose={() => setEditDow(null)} />}
+      {editDow && <PlanEditor dow={editDow.dow} date={editDow.date} state={state} update={update} onClose={() => setEditDow(null)} />}
     </div>
   )
 }
