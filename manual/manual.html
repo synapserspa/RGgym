@@ -1,55 +1,93 @@
 <!doctype html>
-<html lang="es">
-<head>
-<meta charset="utf-8">
-<title>Manual de usuario · Metodo Rod</title>
+<html lang="es"><head><meta charset="utf-8"><title>Manual de usuario · Metodo Rod</title>
 <style>
-  @page { size: A4; margin: 16mm 15mm; }
-  * { box-sizing: border-box; }
-  body { font-family: 'Segoe UI', Arial, sans-serif; color: #1c1c1c; font-size: 11.5pt; line-height: 1.5; margin: 0; }
-  .cover { height: 255mm; background: #0a0a0a; color: #fff; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; border-radius: 10px; page-break-after: always; padding: 20mm; }
-  .cover img { width: 60mm; border-radius: 14px; margin-bottom: 14mm; }
-  .cover h1 { font-size: 40pt; margin: 0; letter-spacing: -1px; }
-  .cover h1 span { color: #39ff14; }
-  .cover p { color: #9a9a9a; font-size: 14pt; margin-top: 6mm; }
-  h2 { font-size: 20pt; margin: 0 0 4mm; padding-bottom: 2mm; border-bottom: 3px solid #39ff14; }
-  h3 { font-size: 13.5pt; margin: 6mm 0 2mm; }
-  section { page-break-before: always; }
-  .tip, .warn { border-left: 5px solid #39ff14; background: #f1fff0; padding: 3mm 4mm; margin: 4mm 0; border-radius: 4px; }
-  .warn { border-color: #e0a100; background: #fff8e6; }
-  ol, ul { padding-left: 6mm; margin: 2mm 0; }
-  li { margin-bottom: 1.5mm; }
-  table { border-collapse: collapse; width: 100%; margin: 3mm 0; font-size: 10.5pt; }
-  th, td { border: 1px solid #ccc; padding: 2mm 3mm; text-align: left; vertical-align: top; }
-  th { background: #0a0a0a; color: #39ff14; }
-  .k { background: #0a0a0a; color: #39ff14; padding: 0 2mm; border-radius: 3px; font-weight: 700; white-space: nowrap; }
-  .toc li { margin-bottom: 2mm; font-size: 12.5pt; }
-</style>
-</head>
-<body>
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,600;0,700;0,800;0,900;1,400&display=swap');
+:root{--ink:#0e1116;--card:#1b2230;--lime:#c6f432;--olive:#5a7d00;--mut:#6b7385;--soft:#9aa3b5;--bg:#f4f6f9;--line:#e3e6ec;--coral:#ff6b5b}
+@page{size:A4;margin:18mm 16mm 20mm;
+  @bottom-left{content:"METODO ROD  ·  Manual de usuario";font:600 8pt Inter,'Segoe UI',sans-serif;color:#9aa3b5;letter-spacing:.06em}
+  @bottom-right{content:counter(page);font:700 9pt Inter,'Segoe UI',sans-serif;color:#5a7d00}}
+@page :first{margin:0;@bottom-left{content:none}@bottom-right{content:none}}
+*{box-sizing:border-box}
+html{background:var(--bg)}
+body{font-family:Inter,'Segoe UI',Arial,sans-serif;color:var(--card);font-size:10.5pt;line-height:1.55;margin:0}
+.cover{height:297mm;width:210mm;background:radial-gradient(circle at 78% 18%,rgba(198,244,50,.22),transparent 45%),var(--ink);color:#fff;padding:26mm 20mm 20mm;display:flex;flex-direction:column;page-break-after:always;position:relative}
+.cover .tag{color:var(--lime);font-weight:800;letter-spacing:.18em;font-size:9.5pt}
+.cover img{width:48mm;border-radius:12px;margin:14mm 0 12mm;border:1px solid #2a3140}
+.cover h1{font-size:54pt;line-height:.98;margin:0;font-weight:900;letter-spacing:-.03em}
+.cover h1 span{color:var(--lime)}
+.cover .sub{color:var(--soft);font-size:13pt;margin-top:8mm;max-width:130mm}
+.cover .tabs{position:absolute;left:20mm;right:20mm;bottom:20mm;display:grid;grid-template-columns:repeat(4,1fr);gap:4mm}
+.cover .tabs div{border-top:2px solid var(--lime);padding-top:3mm}
+.cover .tabs b{display:block;color:#fff;font-size:10pt}
+.cover .tabs small{color:var(--soft);font-size:8pt}
+.cover .ver{position:absolute;top:26mm;right:20mm;color:var(--soft);font-size:8.5pt}
+.kicker{color:var(--olive);font-weight:800;letter-spacing:.16em;font-size:8.5pt;margin-bottom:2mm}
+h2{font-size:27pt;line-height:1.05;margin:0 0 5mm;font-weight:900;letter-spacing:-.02em;color:var(--ink)}
+h2::after{content:"";display:block;width:18mm;height:4px;background:var(--lime);margin-top:4mm;border-radius:2px}
+h3{font-size:12.5pt;margin:6mm 0 2mm;color:var(--ink);font-weight:800}
+h3::before{content:"";display:inline-block;width:3mm;height:3mm;background:var(--lime);border-radius:1mm;margin-right:2.5mm;vertical-align:baseline}
+section{page-break-before:always}
+p{margin:2mm 0}
+b{color:var(--ink)}
+ul,ol{margin:2mm 0;padding-left:5.5mm}
+li{margin-bottom:1.5mm}
+ol{list-style:none;padding-left:0;counter-reset:n}
+ol>li{counter-increment:n;position:relative;padding-left:9mm;min-height:6.5mm}
+ol>li::before{content:counter(n);position:absolute;left:0;top:0;width:6mm;height:6mm;border-radius:50%;background:var(--lime);color:var(--ink);font-weight:900;font-size:8.5pt;display:flex;align-items:center;justify-content:center}
+ul{list-style:none;padding-left:0}
+ul>li{position:relative;padding-left:5mm}
+ul>li::before{content:"";position:absolute;left:0;top:2.2mm;width:2mm;height:2mm;border-radius:50%;background:var(--olive)}
+table{border-collapse:separate;border-spacing:0;width:100%;margin:3mm 0;font-size:9.5pt;border:1px solid var(--line);border-radius:3mm;overflow:hidden;background:#fff}
+th{background:var(--ink);color:var(--lime);text-align:left;padding:2.5mm 3.5mm;font-size:8pt;letter-spacing:.1em;text-transform:uppercase}
+td{padding:2.5mm 3.5mm;border-top:1px solid var(--line);vertical-align:top}
+tr:nth-child(even) td{background:#fafbf3}
+.tip,.warn{border-radius:3mm;padding:4mm 5mm;margin:4mm 0;font-size:9.5pt}
+.tip{background:var(--ink);color:var(--soft);border-left:1.6mm solid var(--lime)}
+.tip b{color:var(--lime)}
+.warn{background:#fff;border:1px solid #ffd2cc;border-left:1.6mm solid var(--coral)}
+.warn b{color:#c8402f}
+.k{background:var(--ink);color:var(--lime);padding:0 2mm;border-radius:2mm;font-weight:800;white-space:nowrap}
+code{background:#e6e8ee;padding:0 1.5mm;border-radius:1mm;font-size:9pt}
+.toc-wrap{page-break-after:always}
+.toc{display:grid;grid-template-columns:1fr 1fr;gap:4mm;margin-top:6mm}
+.toc div{background:var(--ink);color:#fff;border-radius:3mm;padding:5mm;display:flex;gap:4mm;align-items:center;font-weight:700;font-size:10.5pt}
+.toc div span{color:var(--lime);font-weight:900;font-size:18pt;min-width:9mm}
+.intro{font-size:11.5pt;color:var(--mut);margin-bottom:2mm}
+</style></head><body>
 
 <div class="cover">
+  <div class="tag">MANUAL DE USUARIO</div><div class="ver">Versión 1.0</div>
   <img src="../public/icons/icon-512.png" alt="">
-  <h1>Metodo <span>Rod</span></h1>
-  <p>Manual de usuario</p>
-  <p style="font-size:11pt">Tu app personal de rutinas de gimnasio · funciona sin internet</p>
+  <h1>Metodo<br><span>Rod.</span></h1>
+  <p class="sub">Tu app personal de rutinas de gimnasio: series, descansos, calendario y progreso. Sin internet, sin excusas.</p>
+  <div class="tabs">
+    <div><b>Entrenar</b><small>Tu plan de hoy</small></div>
+    <div><b>Calendario</b><small>Planifica la semana</small></div>
+    <div><b>Ejercicios</b><small>Biblioteca y fotos</small></div>
+    <div><b>Progreso</b><small>Mide y mejora</small></div>
+  </div>
 </div>
 
-<h2>Contenido</h2>
-<ol class="toc">
-  <li>Instalar la app en el móvil o la tablet</li>
-  <li>Primer inicio</li>
-  <li>Entrenar hoy</li>
-  <li>Entrenamiento activo (series, rondas y descanso)</li>
-  <li>Calendario y planificación</li>
-  <li>Biblioteca de ejercicios</li>
-  <li>Progreso e historial</li>
-  <li>Ajustes, copia de seguridad y fondo</li>
-  <li>Consejos y preguntas frecuentes</li>
-</ol>
+<div class="toc-wrap">
+<div class="kicker">ANTES DE EMPEZAR</div>
+<h2>Esto no va de motivación. Va de sistema.</h2>
+<p class="intro">Este manual te enseña a usar cada parte de la app. Léelo una vez; después te acompañará en cada entrenamiento.</p>
+<div class="toc">
+  <div><span>01</span>Instalar la app</div>
+  <div><span>02</span>Primer inicio</div>
+  <div><span>03</span>Entrenar hoy</div>
+  <div><span>04</span>Entrenamiento activo</div>
+  <div><span>05</span>Calendario y planificación</div>
+  <div><span>06</span>Biblioteca de ejercicios</div>
+  <div><span>07</span>Progreso e historial</div>
+  <div><span>08</span>Ajustes y copia de seguridad</div>
+  <div><span>09</span>Consejos y preguntas frecuentes</div>
+</div>
+</div>
 
 <section>
-<h2>1. Instalar la app</h2>
+<div class="kicker">CAPÍTULO 01</div>
+<h2>Instalar la app.</h2>
 <p>La app es una página web instalable (PWA). Se instala una sola vez y después se usa como cualquier otra app, incluso sin internet.</p>
 <h3>Android (Chrome)</h3>
 <ol>
@@ -68,7 +106,8 @@
 </section>
 
 <section>
-<h2>2. Primer inicio</h2>
+<div class="kicker">CAPÍTULO 02</div>
+<h2>Primer inicio.</h2>
 <p>La primera vez ves la pantalla de bienvenida. Escribe tu nombre y pulsa <b>Empezar</b>. Puedes cambiarlo después en Progreso → Ajustes.</p>
 <p>La app viene con una rutina de ejemplo ya cargada, basada en la guía <i>De flaco a definido</i>: <b>Upper / Lower de 4 días</b>.</p>
 <table>
@@ -92,7 +131,8 @@
 </section>
 
 <section>
-<h2>3. Entrenar hoy</h2>
+<div class="kicker">CAPÍTULO 03</div>
+<h2>Entrenar hoy.</h2>
 <p>Es la pantalla principal. Arriba verás un saludo según la hora, la fecha y cuántos días has entrenado esta semana (por ejemplo <b>2/4</b>).</p>
 <ul>
   <li><b>¿Qué haremos hoy?</b> Resume el día: número de ejercicios, series y duración aproximada.</li>
@@ -105,7 +145,8 @@
 </section>
 
 <section>
-<h2>4. Entrenamiento activo</h2>
+<div class="kicker">CAPÍTULO 04</div>
+<h2>Entrenamiento activo.</h2>
 <p>Al empezar se abre una pantalla a pantalla completa, pensada para usarla con una sola mano.</p>
 <h3>Qué ves</h3>
 <ul>
@@ -148,7 +189,8 @@
 </section>
 
 <section>
-<h2>5. Calendario y planificación</h2>
+<div class="kicker">CAPÍTULO 05</div>
+<h2>Calendario y planificación.</h2>
 <p>Cambia entre vista <b>Mes</b> y <b>Semana</b> con el selector de arriba. Usa las flechas para avanzar o retroceder, y toca el título para volver a hoy.</p>
 <h3>Qué significan las marcas</h3>
 <table>
@@ -179,7 +221,8 @@
 </section>
 
 <section>
-<h2>6. Biblioteca de ejercicios</h2>
+<div class="kicker">CAPÍTULO 06</div>
+<h2>Biblioteca de ejercicios.</h2>
 <p>Incluye 28 ejercicios precargados, organizados por zona: Pecho, Espalda, Piernas, Hombros, Brazos, Abdomen y Cardio.</p>
 <ul>
   <li><b>Buscar:</b> escribe en el cuadro de búsqueda o filtra con las fichas de zona.</li>
@@ -198,7 +241,8 @@
 </section>
 
 <section>
-<h2>7. Progreso e historial</h2>
+<div class="kicker">CAPÍTULO 07</div>
+<h2>Progreso e historial.</h2>
 <h3>Resumen</h3>
 <p>Cuatro tarjetas: entrenos totales, días seguidos, entrenos de esta semana y volumen total. El <b>volumen</b> es series × repeticiones × peso. Si no pones peso, el volumen será 0. Debajo hay un gráfico con el volumen de tus últimas sesiones.</p>
 <h3>Secciones desplegables</h3>
@@ -213,7 +257,8 @@
 </section>
 
 <section>
-<h2>8. Ajustes, copia de seguridad y fondo</h2>
+<div class="kicker">CAPÍTULO 08</div>
+<h2>Ajustes, copia de seguridad y fondo.</h2>
 <p>Abre los ajustes con el engranaje ⚙ de la pestaña <b>Progreso</b>.</p>
 <ul>
   <li><b>Tu nombre:</b> el que aparece en el saludo.</li>
@@ -232,7 +277,8 @@
 </section>
 
 <section>
-<h2>9. Consejos y preguntas frecuentes</h2>
+<div class="kicker">CAPÍTULO 09</div>
+<h2>Consejos y preguntas frecuentes.</h2>
 <h3>Cómo sacarle partido</h3>
 <ul>
   <li>Registra el peso y las repeticiones de cada serie: lo que no se mide, no mejora.</li>
