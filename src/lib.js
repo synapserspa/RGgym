@@ -152,3 +152,10 @@ export function useBackLayer(open, onClose) {
     }
   }, [open])
 }
+
+// ---------- Copia de seguridad (descarga un JSON con todos los datos) ----------
+export function downloadBackup(state) {
+  const blob = new Blob([JSON.stringify({ app: 'metodo-rod', version: 1, exportedAt: new Date().toISOString(), data: { ...state, active: null } })], { type: 'application/json' })
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `metodo-rod-backup-${dateKey()}.json`
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 2000)
+}

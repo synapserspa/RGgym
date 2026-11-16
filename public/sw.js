@@ -1,5 +1,5 @@
 // Service Worker: funcionamiento offline (precache + stale-while-revalidate)
-const CACHE = 'metodo-rod-v8'
+const CACHE = 'metodo-rod-v9'
 
 self.addEventListener('install', (event) => {
   event.waitUntil((async () => {
@@ -28,6 +28,7 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   const req = event.request
   if (req.method !== 'GET' || new URL(req.url).origin !== self.location.origin) return
+  if (new URL(req.url).pathname.endsWith('/estado.json')) return // el interruptor del propietario siempre va a la red
   event.respondWith((async () => {
     const cache = await caches.open(CACHE)
     // Páginas: red primero (siempre la versión nueva); sin conexión, la copia guardada

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { BarChart3, CalendarDays, Dumbbell, Library as LibIcon } from 'lucide-react'
-import { initBackNav, useBackLayer, useStore } from './lib'
+import { downloadBackup, initBackNav, useBackLayer, useStore } from './lib'
+import { useAccess } from './access'
 import { cx } from './ui'
 import Today from './Today'
 import { ActiveWorkout } from './Active'
@@ -14,6 +15,27 @@ const TABS = [
   { id: 'library', label: 'Ejercicios', icon: LibIcon },
   { id: 'progress', label: 'Progreso', icon: BarChart3 },
 ]
+
+function LockScreen({ msg, kind, onRetry, onBackup }) {
+  const [info, setInfo] = useState('')
+  const retry = async () => {
+    setInfo('Verificando…')
+    const r = await onRetry()
+    setInfo(r === 'sin-conexion' ? 'Sin conexión: no se pudo verificar.' : r === 'suspendida' ? 'El acceso sigue suspendido.' : '')
+  }
+  return (
+    <div className="h-full flex flex-col items-center justify-center px-6 text-center max-w-xl mx-auto safe-top safe-bottom">
+      <img src="./icons/icon-192.png" alt="" className="size-24 rounded-3xl mb-6 opacity-60" />
+      <div className="text-5xl mb-3">🔒</div>
+      <h1 className="text-2xl font-black leading-tight mb-2">{msg}</h1>
+      {kind === 'expired' && <p className="text-muted mb-4">Con internet, toca Reintentar.</p>}
+      <p className="text-muted text-sm mb-8">Tus datos siguen guardados en este dispositivo. Puedes descargar tu copia de seguridad.</p>
+      <button onClick={onBackup} className="w-full min-h-16 rounded-2xl bg-neon text-black text-lg font-black">Descargar mi copia de seguridad</button>
+      <button onClick={retry} className="w-full min-h-14 mt-3 rounded-2xl bg-surface2 border border-line text-lg font-bold">Reintentar</button>
+      {info && <p className="mt-3 text-sm text-muted">{info}</p>}
+    </div>
+  )
+}
 
 function Welcome({ onDone }) {
   const [name, setName] = useState('')
@@ -43,11 +65,13 @@ function Shell({ settings, children }) {
 
 export default function App() {
   const { state, update, replaceAll, saveError } = useStore()
+  const access = useAccess()
   const [tab, setTab] = useState('today')
   const [toast, setToast] = useState(false)
   useEffect(() => { initBackNav(() => { setToast(true); setTimeout(() => setToast(false), 2000) }) }, [])
   useBackLayer(tab !== 'today' && !state.active, () => setTab('today')) // atrás desde otra pestaña vuelve a "Entrenar"
 
+  if (access.locked) return <LockScreen msg={access.msg} kind={access.kind} onRetry={access.recheck} onBackup={() => downloadBackup(state)} />
   if (!state.settings.welcomed) return <Welcome onDone={(name) => update((s) => ({ ...s, settings: { ...s.settings, name: name.trim(), welcomed: true } }))} />
   if (state.active) return <Shell settings={state.settings}><ActiveWorkout state={state} update={update} onExit={() => setTab('progress')} /></Shell>
 
