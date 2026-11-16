@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Manual de usuario · Metodo Rod</title>
+<style>
+  @page { size: A4; margin: 16mm 15mm; }
+  * { box-sizing: border-box; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; color: #1c1c1c; font-size: 11.5pt; line-height: 1.5; margin: 0; }
+  .cover { height: 255mm; background: #0a0a0a; color: #fff; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; border-radius: 10px; page-break-after: always; padding: 20mm; }
+  .cover img { width: 60mm; border-radius: 14px; margin-bottom: 14mm; }
+  .cover h1 { font-size: 40pt; margin: 0; letter-spacing: -1px; }
+  .cover h1 span { color: #39ff14; }
+  .cover p { color: #9a9a9a; font-size: 14pt; margin-top: 6mm; }
+  h2 { font-size: 20pt; margin: 0 0 4mm; padding-bottom: 2mm; border-bottom: 3px solid #39ff14; }
+  h3 { font-size: 13.5pt; margin: 6mm 0 2mm; }
+  section { page-break-before: always; }
+  .tip, .warn { border-left: 5px solid #39ff14; background: #f1fff0; padding: 3mm 4mm; margin: 4mm 0; border-radius: 4px; }
+  .warn { border-color: #e0a100; background: #fff8e6; }
+  ol, ul { padding-left: 6mm; margin: 2mm 0; }
+  li { margin-bottom: 1.5mm; }
+  table { border-collapse: collapse; width: 100%; margin: 3mm 0; font-size: 10.5pt; }
+  th, td { border: 1px solid #ccc; padding: 2mm 3mm; text-align: left; vertical-align: top; }
+  th { background: #0a0a0a; color: #39ff14; }
+  .k { background: #0a0a0a; color: #39ff14; padding: 0 2mm; border-radius: 3px; font-weight: 700; white-space: nowrap; }
+  .toc li { margin-bottom: 2mm; font-size: 12.5pt; }
+</style>
+</head>
+<body>
+
+<div class="cover">
+  <img src="../public/icons/icon-512.png" alt="">
+  <h1>Metodo <span>Rod</span></h1>
+  <p>Manual de usuario</p>
+  <p style="font-size:11pt">Tu app personal de rutinas de gimnasio · funciona sin internet</p>
+</div>
+
+<h2>Contenido</h2>
+<ol class="toc">
+  <li>Instalar la app en el móvil o la tablet</li>
+  <li>Primer inicio</li>
+  <li>Entrenar hoy</li>
+  <li>Entrenamiento activo (series, rondas y descanso)</li>
+  <li>Calendario y planificación</li>
+  <li>Biblioteca de ejercicios</li>
+  <li>Progreso e historial</li>
+  <li>Ajustes, copia de seguridad y fondo</li>
+  <li>Consejos y preguntas frecuentes</li>
+</ol>
+
+<section>
+<h2>1. Instalar la app</h2>
+<p>La app es una página web instalable (PWA). Se instala una sola vez y después se usa como cualquier otra app, incluso sin internet.</p>
+<h3>Android (Chrome)</h3>
+<ol>
+  <li>Abre la dirección de la app en Chrome, con internet.</li>
+  <li>Pulsa el menú <b>⋮</b> (arriba a la derecha).</li>
+  <li>Elige <b>Instalar aplicación</b> o <b>Añadir a pantalla de inicio</b> y confirma.</li>
+</ol>
+<h3>iPhone / iPad (Safari)</h3>
+<ol>
+  <li>Abre la dirección en <b>Safari</b> (otros navegadores no permiten instalar).</li>
+  <li>Pulsa el botón <b>Compartir</b>.</li>
+  <li>Elige <b>Añadir a pantalla de inicio</b> y pulsa <b>Añadir</b>.</li>
+</ol>
+<div class="tip"><b>Importante:</b> abre la app una vez con internet y espera a que cargue por completo. Así queda guardada para usarla sin conexión en el gimnasio.</div>
+<div class="warn"><b>Actualizaciones:</b> cuando haya una versión nueva, ábrela dos veces para verla. Si cambia el nombre o el icono, desinstálala y vuelve a instalarla (antes exporta una copia de seguridad).</div>
+</section>
+
+<section>
+<h2>2. Primer inicio</h2>
+<p>La primera vez ves la pantalla de bienvenida. Escribe tu nombre y pulsa <b>Empezar</b>. Puedes cambiarlo después en Progreso → Ajustes.</p>
+<p>La app viene con una rutina de ejemplo ya cargada, basada en la guía <i>De flaco a definido</i>: <b>Upper / Lower de 4 días</b>.</p>
+<table>
+  <tr><th>Día</th><th>Entrenamiento</th></tr>
+  <tr><td>Lunes</td><td>Torso A (pecho, espalda, hombros, brazos)</td></tr>
+  <tr><td>Martes</td><td>Pierna A (piernas y abdomen)</td></tr>
+  <tr><td>Miércoles</td><td>Descanso + pasos</td></tr>
+  <tr><td>Jueves</td><td>Torso B</td></tr>
+  <tr><td>Viernes</td><td>Pierna B</td></tr>
+  <tr><td>Sábado y domingo</td><td>Descanso + pasos</td></tr>
+</table>
+<p>Puedes cambiar todo esto a tu gusto (ver capítulo 5).</p>
+<h3>La barra inferior</h3>
+<table>
+  <tr><th>Pestaña</th><th>Para qué sirve</th></tr>
+  <tr><td><b>Entrenar</b></td><td>Pantalla de inicio: saludo, plan de hoy y botón para empezar.</td></tr>
+  <tr><td><b>Calendario</b></td><td>Planificar días de entrenamiento y descanso.</td></tr>
+  <tr><td><b>Ejercicios</b></td><td>Biblioteca con fotos e instrucciones. Crea los tuyos.</td></tr>
+  <tr><td><b>Progreso</b></td><td>Historial, estadísticas, medidas, hábitos y ajustes (⚙).</td></tr>
+</table>
+</section>
+
+<section>
+<h2>3. Entrenar hoy</h2>
+<p>Es la pantalla principal. Arriba verás un saludo según la hora, la fecha y cuántos días has entrenado esta semana (por ejemplo <b>2/4</b>).</p>
+<ul>
+  <li><b>¿Qué haremos hoy?</b> Resume el día: número de ejercicios, series y duración aproximada.</li>
+  <li><b>Tarjeta "Hoy toca"</b>: nombre de la rutina y zonas del cuerpo. El lápiz ✏ edita solo el plan de hoy.</li>
+  <li><b>Series seguidas / Circuito</b>: elige cómo quieres entrenar (ver capítulo 4).</li>
+  <li><b>Empezar entrenamiento</b>: botón grande para comenzar.</li>
+  <li><b>Lista de la rutina</b>: toca un ejercicio para ver su foto e instrucciones.</li>
+</ul>
+<p>Si hoy es día de descanso, la app te lo indica y te recuerda cumplir los pasos y dormir bien. Si quieres entrenar igualmente, pulsa <b>Entrenar de todas formas</b>.</p>
+</section>
+
+<section>
+<h2>4. Entrenamiento activo</h2>
+<p>Al empezar se abre una pantalla a pantalla completa, pensada para usarla con una sola mano.</p>
+<h3>Qué ves</h3>
+<ul>
+  <li>Arriba: cronómetro total, barra de progreso y series completadas.</li>
+  <li>El nombre del ejercicio, <b>Serie X de Y</b>, el objetivo de repeticiones y el RIR.</li>
+  <li><b>Repeticiones</b> y <b>Peso</b> con botones grandes <span class="k">+</span> y <span class="k">−</span>. También puedes tocar el número y escribirlo. El peso sube de 2,5 en 2,5 kg.</li>
+  <li><b>Foto y Guía rápida</b> del ejercicio, plegable.</li>
+  <li><b>Siguiente:</b> el próximo ejercicio.</li>
+</ul>
+<h3>Cómo registrar una serie</h3>
+<ol>
+  <li>Ajusta repeticiones y peso con <span class="k">+</span> / <span class="k">−</span>.</li>
+  <li>Pulsa el botón verde <b>SERIE LISTA</b>.</li>
+  <li>Empieza solo el temporizador de descanso.</li>
+</ol>
+<p>A la izquierda del botón verde está <b>Deshacer</b> (quita la última serie) y a la derecha <b>Saltar</b> (pasa al siguiente sin registrar).</p>
+<h3>Temporizador de descanso</h3>
+<ul>
+  <li>Muestra una cuenta atrás grande con un anillo.</li>
+  <li><b>−15s / +15s</b> ajustan el tiempo; <b>Saltar</b> lo cierra.</li>
+  <li>Al terminar suena un aviso suave y vibra el teléfono. La pantalla se pone verde y se cierra sola a los pocos segundos.</li>
+  <li>Elige el descanso con las opciones <b>Auto, 60s, 90s, 120s, 180s</b>. "Auto" usa el tiempo recomendado de cada ejercicio (más largo en básicos, más corto en aislamiento).</li>
+</ul>
+<h3>Series seguidas o circuito</h3>
+<table>
+  <tr><th>Modo</th><th>Cómo funciona</th></tr>
+  <tr><td><b>Series seguidas</b></td><td>Haces todas las series de un ejercicio y pasas al siguiente. Descansas tras cada serie.</td></tr>
+  <tr><td><b>Circuito / rondas</b></td><td>Haces una serie de cada ejercicio seguidos y repites la ronda. Descansas al terminar cada ronda. La pantalla muestra "Ronda 1 de 3".</td></tr>
+</table>
+<h3>Terminar</h3>
+<ol>
+  <li>Pulsa <b>Fin</b> (arriba a la derecha) o <b>Terminar y guardar</b> si completaste todo.</li>
+  <li>Revisa duración, series y volumen.</li>
+  <li>Escribe una <b>nota rápida</b> (por ejemplo: "Subir peso la próxima semana").</li>
+  <li>Pulsa <b>Guardar entrenamiento</b>.</li>
+</ol>
+<p>El botón <b>✕</b> (arriba a la izquierda) abre un menú para activar o quitar sonido y vibración, seguir entrenando o <b>descartar</b> la sesión.</p>
+<div class="tip">La pantalla se mantiene encendida durante el entrenamiento. Si sales de la app y vuelves, tu sesión sigue donde la dejaste.</div>
+<div class="tip">La app recuerda el último peso que usaste en cada ejercicio y lo propone la próxima vez. Así cuesta menos aplicar la <b>sobrecarga progresiva</b>.</div>
+</section>
+
+<section>
+<h2>5. Calendario y planificación</h2>
+<p>Cambia entre vista <b>Mes</b> y <b>Semana</b> con el selector de arriba. Usa las flechas para avanzar o retroceder, y toca el título para volver a hoy.</p>
+<h3>Qué significan las marcas</h3>
+<table>
+  <tr><th>Marca</th><th>Significado</th></tr>
+  <tr><td>✔ verde</td><td>Día completado</td></tr>
+  <tr><td>Puntos de colores</td><td>Día planificado (un color por zona del cuerpo)</td></tr>
+  <tr><td>Luna</td><td>Día de descanso</td></tr>
+  <tr><td>Borde verde</td><td>Hoy</td></tr>
+</table>
+<h3>Cambiar un día</h3>
+<p>Toca cualquier día. Se abre su ficha con estas opciones:</p>
+<ul>
+  <li><b>Convertir en día de descanso / de entrenamiento</b>: cambia solo ese día, en un toque.</li>
+  <li><b>Editar solo este día</b>: cambia la rutina de esa fecha únicamente.</li>
+  <li><b>Todos los [lunes, martes…]</b>: cambia el plan que se repite cada semana.</li>
+  <li><b>Volver al plan semanal</b>: aparece si personalizaste el día y quieres deshacerlo.</li>
+  <li><b>Entrenar hoy</b>: aparece si el día es hoy.</li>
+</ul>
+<h3>Armar una rutina</h3>
+<ol>
+  <li>Abre el editor con <b>Editar solo este día</b> o <b>Todos los…</b>.</li>
+  <li>Escribe un nombre (por ejemplo "Pecho y tríceps").</li>
+  <li>Elige las <b>zonas del cuerpo</b>.</li>
+  <li>Pulsa <b>Añadir ejercicios</b>, marca los que quieras y confirma.</li>
+  <li>Para cada ejercicio ajusta <b>series, repeticiones y peso</b>. Con las flechas ↑ ↓ cambias el orden y con la papelera lo quitas.</li>
+</ol>
+<div class="tip">El botón <b>Marcar como día de descanso</b> dentro del editor sirve para convertir un día completo en descanso sin borrar sus ejercicios.</div>
+</section>
+
+<section>
+<h2>6. Biblioteca de ejercicios</h2>
+<p>Incluye 28 ejercicios precargados, organizados por zona: Pecho, Espalda, Piernas, Hombros, Brazos, Abdomen y Cardio.</p>
+<ul>
+  <li><b>Buscar:</b> escribe en el cuadro de búsqueda o filtra con las fichas de zona.</li>
+  <li><b>Ver un ejercicio:</b> tócalo para ver su foto, nivel de dificultad, descanso recomendado e instrucciones paso a paso.</li>
+</ul>
+<h3>Crear un ejercicio propio</h3>
+<ol>
+  <li>Pulsa el botón verde <b>+</b> (arriba a la derecha).</li>
+  <li>Escribe el nombre y elige zona y dificultad.</li>
+  <li>Indica series, repeticiones y descanso habituales.</li>
+  <li>Añade las instrucciones, un paso por casilla.</li>
+  <li>Sube una foto con <b>Galería</b> o <b>Cámara</b>. La app la reduce de tamaño automáticamente.</li>
+  <li>Pulsa <b>Guardar</b>.</li>
+</ol>
+<p>Tus ejercicios llevan la etiqueta <b>MÍO</b>. Puedes editar cualquier ejercicio (también los precargados, por ejemplo para ponerles tu propia foto). Solo los ejercicios creados por ti se pueden eliminar.</p>
+</section>
+
+<section>
+<h2>7. Progreso e historial</h2>
+<h3>Resumen</h3>
+<p>Cuatro tarjetas: entrenos totales, días seguidos, entrenos de esta semana y volumen total. El <b>volumen</b> es series × repeticiones × peso. Si no pones peso, el volumen será 0. Debajo hay un gráfico con el volumen de tus últimas sesiones.</p>
+<h3>Secciones desplegables</h3>
+<table>
+  <tr><th>Sección</th><th>Qué hace</th></tr>
+  <tr><td><b>Estándares de hoy</b></td><td>Checklist de 8 hábitos diarios (rutina de mañana, método 3-4-5, entreno, proteína, calorías, 10.000 pasos, sin pantallas, 8 h de sueño) y un resumen semanal. Con 80 % de casillas ya es una gran semana.</td></tr>
+  <tr><td><b>Peso, cintura, pasos y sueño</b></td><td>Registro semanal para ver tu evolución.</td></tr>
+  <tr><td><b>Calculadora de macros</b></td><td>Introduce peso y calorías de mantenimiento, elige déficit (−300, −400 o −500) y obtén proteína, grasa y carbohidratos diarios.</td></tr>
+</table>
+<h3>Historial</h3>
+<p>Cada entrenamiento guardado muestra fecha, nombre, zonas, duración, volumen y tu nota. Tócalo para ver las series de cada ejercicio (repeticiones × peso). Dentro puedes <b>eliminar la sesión</b>.</p>
+</section>
+
+<section>
+<h2>8. Ajustes, copia de seguridad y fondo</h2>
+<p>Abre los ajustes con el engranaje ⚙ de la pestaña <b>Progreso</b>.</p>
+<ul>
+  <li><b>Tu nombre:</b> el que aparece en el saludo.</li>
+  <li><b>Foto de fondo:</b> elige una imagen de la <b>Galería</b> o saca una con la <b>Cámara</b>. Con <b>Oscurecer fondo</b> (Poco, Medio, Más, Mucho) controlas cuánto se lee el texto. <b>Quitar foto de fondo</b> vuelve al fondo negro.</li>
+  <li><b>Descanso predeterminado:</b> Auto, 60 s, 90 s, 2 min o 3 min.</li>
+  <li><b>Sonido y vibración</b> al terminar el descanso: ON / OFF.</li>
+</ul>
+<h3>Copia de seguridad</h3>
+<p>Todos tus datos (rutinas, historial, ejercicios, fotos, medidas) se guardan solo en tu dispositivo.</p>
+<ul>
+  <li><b>Exportar:</b> descarga un archivo <code>metodo-rod-backup-fecha.json</code> con todo.</li>
+  <li><b>Importar:</b> elige un archivo de copia y reemplaza los datos actuales (la app te pide confirmación).</li>
+</ul>
+<div class="warn"><b>Cada dispositivo tiene sus propios datos.</b> Para pasar tu historial del móvil a la tablet, exporta en uno e importa en el otro. Haz una copia de vez en cuando: si borras los datos del navegador o desinstalas la app, el historial se pierde.</div>
+<p><b>Borrar todos los datos</b> restablece la app a su estado inicial. No se puede deshacer.</p>
+</section>
+
+<section>
+<h2>9. Consejos y preguntas frecuentes</h2>
+<h3>Cómo sacarle partido</h3>
+<ul>
+  <li>Registra el peso y las repeticiones de cada serie: lo que no se mide, no mejora.</li>
+  <li>Cuando completes el tope del rango de repeticiones en todas las series con buena técnica, sube el peso un 2-5 % en la siguiente sesión.</li>
+  <li><b>RIR</b> significa repeticiones en reserva: RIR 2 es parar dos repeticiones antes de no poder más.</li>
+  <li>Si tu fuerza baja varias semanas, duermes mal o notas dolor persistente, reduce el volumen una semana y revisa el sueño y las calorías.</li>
+</ul>
+<h3>Preguntas frecuentes</h3>
+<p><b>¿Funciona sin internet?</b><br>Sí, una vez abierta con internet al menos una vez. Todo se guarda en el teléfono.</p>
+<p><b>No veo la versión nueva.</b><br>Cierra la app y ábrela dos veces. Si sigue igual, desinstálala e instálala de nuevo (antes exporta tu copia).</p>
+<p><b>No suena el aviso del descanso.</b><br>Comprueba que el sonido esté en ON en el menú ✕ del entrenamiento y que el volumen del teléfono esté subido. Algunos móviles solo vibran con la pantalla encendida.</p>
+<p><b>Marqué una serie por error.</b><br>Pulsa el botón <b>Deshacer</b> de abajo a la izquierda.</p>
+<p><b>Salí de la app a mitad de entrenamiento.</b><br>Al volver, la sesión continúa donde la dejaste.</p>
+<p><b>Me avisa que el almacenamiento está lleno.</b><br>Exporta una copia y quita fotos grandes de ejercicios o el fondo.</p>
+<div class="warn" style="margin-top:8mm"><b>Aviso:</b> esta app y su rutina de ejemplo son información general, no consejo médico. Si tienes alguna lesión o condición de salud, consulta con un profesional sanitario o un entrenador cualificado antes de empezar.</div>
+</section>
+
+</body>
+</html>

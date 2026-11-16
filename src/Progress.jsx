@@ -171,7 +171,8 @@ function SettingsSheet({ state, update, replaceAll, onClose }) {
       </div>
       <input ref={fileRef} type="file" accept="application/json,.json" hidden onChange={importData} />
       {msg && <p className="text-center font-semibold text-neon my-2">{msg}</p>}
-      <Button variant="danger" className="w-full mt-6" onClick={reset}><Trash2 size={20} /> Borrar todos los datos</Button>
+      <a href="./manual-usuario.pdf" download="Manual-Metodo-Rod.pdf" className="mt-6 min-h-14 px-5 rounded-2xl text-lg flex items-center justify-center gap-2 bg-surface2 text-white font-bold border border-line"><Download size={20} /> Descargar manual de usuario (PDF)</a>
+      <Button variant="danger" className="w-full mt-3" onClick={reset}><Trash2 size={20} /> Borrar todos los datos</Button>
       <p className="text-xs text-muted mt-4 leading-snug">Metodo Rod. Información general, no consejo médico: consulta a un profesional si tienes lesiones o dudas de salud.</p>
     </Sheet>
   )

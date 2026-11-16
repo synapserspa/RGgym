@@ -1,11 +1,11 @@
 // Service Worker: funcionamiento offline (precache + stale-while-revalidate)
-const CACHE = 'metodo-rod-v3'
+const CACHE = 'metodo-rod-v4'
 
 self.addEventListener('install', (event) => {
   event.waitUntil((async () => {
     const cache = await caches.open(CACHE)
     const base = self.registration.scope
-    const core = [base, base + 'index.html', base + 'manifest.json', base + 'icons/icon-192.png', base + 'icons/icon-512.png']
+    const core = [base, base + 'index.html', base + 'manifest.json', base + 'icons/icon-192.png', base + 'icons/icon-512.png', base + 'manual-usuario.pdf']
     await cache.addAll(core).catch(() => {})
     // Precarga los assets generados por el build (js/css) leyendo el index.html
     try {
