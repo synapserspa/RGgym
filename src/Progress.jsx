@@ -1,7 +1,7 @@
 import { useMemo, useRef, useState } from 'react'
-import { Calculator, ChevronDown, ChevronUp, Download, Flame, Scale, Settings, Trash2, Upload, Trophy, ListChecks, Clock, Weight } from 'lucide-react'
+import { Calculator, Camera, ImagePlus, ChevronDown, ChevronUp, Download, Flame, Scale, Settings, Trash2, Upload, Trophy, ListChecks, Clock, Weight } from 'lucide-react'
 import { HABITS, ZONE_COLOR } from './data'
-import { DAY_SHORT, addDays, dateKey, fmtDate, fmtDur, fmtNum, mondayOf, uid } from './lib'
+import { DAY_SHORT, addDays, compressImage, dateKey, fmtDate, fmtDur, fmtNum, mondayOf, uid } from './lib'
 import { Button, Card, Chip, Empty, Header, Sheet, ZoneDot, cx, inputCls } from './ui'
 
 const num = (v) => Number(String(v).replace(',', '.')) || 0
@@ -116,6 +116,12 @@ function Macros({ state, update }) {
 
 function SettingsSheet({ state, update, replaceAll, onClose }) {
   const fileRef = useRef(); const [msg, setMsg] = useState('')
+  const bgGal = useRef(); const bgCam = useRef()
+  const setSet = (p) => update((s) => ({ ...s, settings: { ...s.settings, ...p } }))
+  const pickBg = async (e) => {
+    const f = e.target.files?.[0]; e.target.value = ''; if (!f) return
+    try { setSet({ bg: await compressImage(f, 1080, 0.6) }) } catch { setMsg('No se pudo cargar la imagen ✖') }
+  }
   const exportData = () => {
     const blob = new Blob([JSON.stringify({ app: 'metodo-rod', version: 1, exportedAt: new Date().toISOString(), data: { ...state, active: null } })], { type: 'application/json' })
     const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `metodo-rod-backup-${dateKey()}.json`; document.body.appendChild(a); a.click(); a.remove()
@@ -139,6 +145,20 @@ function SettingsSheet({ state, update, replaceAll, onClose }) {
     <Sheet open onClose={onClose} title="Ajustes">
       <h3 className="text-sm font-bold text-muted mb-2">TU NOMBRE</h3>
       <input className={inputCls + ' mb-5'} value={state.settings.name || ''} onChange={(e) => update((s) => ({ ...s, settings: { ...s.settings, name: e.target.value } }))} />
+      <h3 className="text-sm font-bold text-muted mb-2">FOTO DE FONDO</h3>
+      {state.settings.bg && <div className="relative h-32 rounded-2xl overflow-hidden mb-3"><img src={state.settings.bg} alt="" className="w-full h-full object-cover" /><div className="absolute inset-0" style={{ background: `rgba(10,10,10,${state.settings.bgDim})` }} /></div>}
+      <input ref={bgGal} type="file" accept="image/*" hidden onChange={pickBg} />
+      <input ref={bgCam} type="file" accept="image/*" capture="environment" hidden onChange={pickBg} />
+      <div className="grid grid-cols-2 gap-3 mb-3">
+        <Button variant="secondary" onClick={() => bgGal.current.click()}><ImagePlus size={20} /> Galería</Button>
+        <Button variant="secondary" onClick={() => bgCam.current.click()}><Camera size={20} /> Cámara</Button>
+      </div>
+      {state.settings.bg && <>
+        <div className="text-xs text-muted font-semibold mb-1.5">Oscurecer fondo (para leer mejor)</div>
+        <div className="flex gap-2 flex-wrap mb-2">{[[0.5, 'Poco'], [0.65, 'Medio'], [0.75, 'Más'], [0.88, 'Mucho']].map(([v, l]) => <Chip key={v} active={state.settings.bgDim === v} onClick={() => setSet({ bgDim: v })}>{l}</Chip>)}</div>
+        <button className="text-red-400 font-semibold min-h-11" onClick={() => setSet({ bg: null })}>Quitar foto de fondo</button>
+      </>}
+      <div className="mb-5" />
       <h3 className="text-sm font-bold text-muted mb-2">DESCANSO PREDETERMINADO</h3>
       <div className="flex gap-2 flex-wrap mb-5">{[[0, 'Auto'], [60, '60s'], [90, '90s'], [120, '2 min'], [180, '3 min']].map(([v, l]) => (
         <Chip key={v} active={state.settings.rest === v} onClick={() => update((s) => ({ ...s, settings: { ...s.settings, rest: v } }))}>{l}</Chip>))}</div>

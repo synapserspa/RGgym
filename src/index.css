@@ -22,6 +22,12 @@ body {
 input, textarea, select { user-select: text; }
 button { touch-action: manipulation; }
 button:active:not(:disabled) { transform: scale(0.97); }
+.has-bg {
+  --color-bg: rgba(10, 10, 10, 0.9);
+  --color-surface: rgba(22, 22, 22, 0.82);
+  --color-surface2: rgba(38, 38, 38, 0.88);
+}
+.bg-layer { position: fixed; inset: 0; z-index: 0; background-size: cover; background-position: center; }
 .safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
 .safe-top { padding-top: env(safe-area-inset-top); }
 .no-scrollbar::-webkit-scrollbar { display: none; }

@@ -27,14 +27,28 @@ function Welcome({ onDone }) {
   )
 }
 
+function Shell({ settings, children }) {
+  const has = !!settings.bg
+  return (
+    <div className={has ? 'has-bg h-full' : 'h-full'}>
+      {has && <>
+        <div className="bg-layer" style={{ backgroundImage: `url(${settings.bg})` }} />
+        <div className="bg-layer" style={{ background: `rgba(10,10,10,${settings.bgDim ?? 0.75})` }} />
+      </>}
+      <div className="relative z-10 h-full">{children}</div>
+    </div>
+  )
+}
+
 export default function App() {
   const { state, update, replaceAll, saveError } = useStore()
   const [tab, setTab] = useState('today')
 
   if (!state.settings.welcomed) return <Welcome onDone={(name) => update((s) => ({ ...s, settings: { ...s.settings, name: name.trim(), welcomed: true } }))} />
-  if (state.active) return <ActiveWorkout state={state} update={update} onExit={() => setTab('progress')} />
+  if (state.active) return <Shell settings={state.settings}><ActiveWorkout state={state} update={update} onExit={() => setTab('progress')} /></Shell>
 
   return (
+    <Shell settings={state.settings}>
     <div className="h-full flex flex-col max-w-xl mx-auto">
       <main className="flex-1 overflow-y-auto pb-28">
         {tab === 'today' && <Today state={state} update={update} onStartTraining={() => {}} />}
@@ -52,5 +66,6 @@ export default function App() {
         </div>
       </nav>
     </div>
+    </Shell>
   )
 }
