@@ -1,6 +1,6 @@
 {
-  "name": "Método H · Entrenamiento",
-  "short_name": "Método H",
+  "name": "MyRGgym",
+  "short_name": "MyRGgym",
   "description": "Seguimiento de rutinas de gimnasio: series, descansos, calendario y progreso. Funciona sin internet.",
   "start_url": "./",
   "scope": "./",

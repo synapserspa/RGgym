@@ -20,7 +20,7 @@ function Welcome({ onDone }) {
     <div className="h-full flex flex-col items-center justify-center px-6 text-center max-w-xl mx-auto safe-top safe-bottom">
       <img src="./icons/icon-192.png" alt="" className="size-28 rounded-3xl mb-6" />
       <h1 className="text-4xl font-black leading-tight">De flaco<br /><span className="text-neon">a definido.</span></h1>
-      <p className="text-muted mt-3 mb-8">Tu sistema de entrenamiento Método H: 4 días, ~1 hora, todo registrado y sin necesidad de internet.</p>
+      <p className="text-muted mt-3 mb-8">Tu sistema de entrenamiento MyRGgym: 4 días, ~1 hora, todo registrado y sin necesidad de internet.</p>
       <input className="w-full min-h-14 rounded-2xl bg-surface border border-line px-4 text-lg text-center focus:outline-none focus:border-neon" placeholder="¿Cómo te llamas?" value={name} onChange={(e) => setName(e.target.value)} />
       <button onClick={() => onDone(name)} className="w-full min-h-16 mt-4 rounded-2xl bg-neon text-black text-xl font-black">Empezar</button>
     </div>
