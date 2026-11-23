@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { BarChart3, CalendarDays, Dumbbell, Library as LibIcon, PersonStanding } from 'lucide-react'
 import { downloadBackup, initBackNav, useBackLayer, useStore } from './lib'
 import { useAccess } from './access'
+import { CoachDialog } from './coach'
 import { cx } from './ui'
 import Today from './Today'
 import { ActiveWorkout } from './Active'
@@ -65,7 +66,7 @@ function Shell({ settings, children }) {
   )
 }
 
-export default function App() {
+function AppInner() {
   const { state, update, replaceAll, saveError } = useStore()
   const access = useAccess()
   const [tab, setTab] = useState('today')
@@ -99,5 +100,14 @@ export default function App() {
       </nav>
     </div>
     </Shell>
+  )
+}
+
+export default function App() {
+  return (
+    <>
+      <AppInner />
+      <CoachDialog />
+    </>
   )
 }

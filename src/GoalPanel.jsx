@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import { Calculator, Check, RotateCcw, Sparkles, Target } from 'lucide-react'
 import { GOALS, applyGoalToState, goalOf } from './goals'
 import { Button, Card, Sheet, cx } from './ui'
+import { coach, coachAlert } from './coach'
 
 // Botón pequeño que muestra la meta actual
 export function GoalChip({ goal, onClick, className }) {
@@ -21,8 +22,8 @@ export function GoalSheet({ state, update, onClose }) {
   const g = goalOf(sel)
   const exMap = useMemo(() => Object.fromEntries(state.exercises.map((e) => [e.id, e])), [state.exercises])
   const choose = () => { update((s) => ({ ...s, settings: { ...s.settings, goal: sel } })); setMsg(`Meta elegida: ${g.name} ✔`) }
-  const adapt = () => {
-    if (!confirm(`Se ajustan las series, repeticiones y descansos de tu plan semanal a la meta “${g.name}”. Puedes volver a lo original cuando quieras. ¿Continuar?`)) return
+  const adapt = async () => {
+    if (!(await coach(`Voy a ajustar las series, repeticiones y descansos de tu plan semanal a la meta “${g.name}”. Puedes volver a lo original cuando quieras. ¿Seguimos?`, { yes: 'Sí, ajustar' }))) return
     update((s) => ({ ...applyGoalToState(s, sel, exMap), settings: { ...s.settings, goal: sel } })); setMsg('Plan ajustado a tu meta ✔')
   }
   const restore = () => { update((s) => applyGoalToState(s, sel, exMap, true)); setMsg('Plan restaurado a lo original ✔') }

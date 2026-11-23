@@ -5,6 +5,7 @@ import { playDone, playEnd, playGo, playTick, speak, unlockAudio } from './audio
 import { Button, Card, Chip, ExerciseImage, Sheet, ZoneDot, cx, inputCls } from './ui'
 import { findPRs, suggestNext } from './records'
 import { ToolsSheet } from './Tools'
+import { coach, coachAlert } from './coach'
 
 // ---------- Secuencia de pasos ----------
 export function buildSteps(items, mode) {
@@ -197,7 +198,7 @@ export function ActiveWorkout({ state, update, onExit }) {
   const restSetting = S.rest
   const setSet = (p) => update((s) => ({ ...s, settings: { ...s.settings, ...p } }))
 
-  const discard = () => { if (confirm('¿Descartar este entrenamiento sin guardar?')) { update((s) => ({ ...s, active: null })); onExit() } }
+  const discard = async () => { if (await coach('¿Seguro que quieres descartar este entrenamiento? Se pierden las series que llevas.', { yes: 'Sí, descartar', no: 'Seguir entrenando' })) { update((s) => ({ ...s, active: null })); onExit() } }
   const save = () => {
     const sets = a.logs.map(({ exId, name, setIdx, reps, weight }) => ({ exId, name, setIdx, reps, weight }))
     const rec = { id: uid(), date: dateKey(new Date(a.startedAt)), startedAt: a.startedAt, durationSec: Math.round(elapsed), label: a.label, zones: a.zones, volume: sessionVolume(sets), notes: notes.trim(), sets }

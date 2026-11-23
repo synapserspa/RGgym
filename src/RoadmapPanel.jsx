@@ -3,6 +3,7 @@ import { AlertTriangle, Check, ClipboardCheck, Flag } from 'lucide-react'
 import { PHASES, SIGNALS, applyDeload, checkinDue, currentWeek, evaluate, phaseOf, taskDone, tasksFor, weekRange } from './roadmap'
 import { dateKey, fmtDate } from './lib'
 import { Button, Card, Sheet, cx, inputCls } from './ui'
+import { coach, coachAlert } from './coach'
 
 const num = (v) => { const n = Number(String(v).replace(',', '.')); return Number.isFinite(n) ? n : 0 }
 
@@ -60,7 +61,7 @@ export function RoadmapSection({ state, update }) {
       <Button className="w-full" onClick={() => update((s) => ({ ...s, roadmap: { start: dateKey(), done: {}, checkins: {} } }))}><Flag size={20} /> Empezar hoy (semana 0)</Button>
     </Card>)
   const week = currentWeek(rm)
-  if (week > 12) return <Card><div className="text-center"><div className="text-4xl mb-2">🏁</div><div className="text-xl font-black">¡Completaste las 12 semanas!</div><p className="text-muted mt-1">Compara tus fotos y medidas con la semana 0 y fija tu siguiente objetivo.</p><Button variant="secondary" className="w-full mt-3" onClick={() => confirm('¿Reiniciar la hoja de ruta?') && update((s) => ({ ...s, roadmap: null }))}>Reiniciar</Button></div></Card>
+  if (week > 12) return <Card><div className="text-center"><div className="text-4xl mb-2">🏁</div><div className="text-xl font-black">¡Completaste las 12 semanas!</div><p className="text-muted mt-1">Compara tus fotos y medidas con la semana 0 y fija tu siguiente objetivo.</p><Button variant="secondary" className="w-full mt-3" onClick={async () => (await coach('¿Reiniciar la hoja de ruta?', { yes: 'Sí, reiniciar' })) && update((s) => ({ ...s, roadmap: null }))}>Reiniciar</Button></div></Card>
   const ph = phaseOf(week); const tasks = tasksFor(state, week); const done = tasks.filter((t) => taskDone(state, week, t)).length
   const due = checkinDue(state)
   const toggle = (t) => update((s) => { const k = `${week}:${t.id}`; return { ...s, roadmap: { ...s.roadmap, done: { ...(s.roadmap.done || {}), [k]: !s.roadmap.done?.[k] } } } })
@@ -87,7 +88,7 @@ export function RoadmapSection({ state, update }) {
             <div key={w} className="rounded-xl bg-surface2 p-2.5 text-sm"><div className="flex justify-between"><b>Semana {w}</b><span className="text-muted">{fmtDate(c.date)}</span></div>
               <div className="text-muted">{[c.weight && `${c.weight} kg`, c.waist && `${c.waist} cm`, `${c.workouts ?? 0} entrenos`, c.fatigue?.some(Boolean) && '⚠ fatiga'].filter(Boolean).join(' · ')}</div></div>))}</div></Card>)}
       <p className="text-[11px] text-muted flex gap-1.5"><AlertTriangle size={12} className="shrink-0 mt-0.5" /> Es una guía general, no consejo médico. Si tienes dolor persistente o dudas de salud, consulta con un profesional.</p>
-      <button className="text-sm text-muted font-semibold min-h-11" onClick={() => confirm('¿Reiniciar la hoja de ruta? Tus chequeos de esta hoja se borrarán.') && update((s) => ({ ...s, roadmap: null }))}>Reiniciar hoja de ruta</button>
+      <button className="text-sm text-muted font-semibold min-h-11" onClick={async () => (await coach('¿Reiniciar la hoja de ruta? Tus chequeos de esta hoja se borrarán.', { yes: 'Sí, reiniciar' })) && update((s) => ({ ...s, roadmap: null }))}>Reiniciar hoja de ruta</button>
       {check !== null && <CheckinSheet state={state} update={update} week={check} onClose={() => setCheck(null)} />}
     </div>
   )

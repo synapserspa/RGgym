@@ -7,6 +7,7 @@ import { Button, Card, Chip, ExerciseImage, Header, Sheet, ZoneDot, cx, inputCls
 import { ExerciseDetail } from './Library'
 import { adaptItems, goalOf } from './goals'
 import { GoalChip, GoalSheet } from './GoalPanel'
+import { coach, coachAlert } from './coach'
 
 const WEEK_ORDER = [1, 2, 3, 4, 5, 6, 0] // lunes ... domingo
 
@@ -37,8 +38,8 @@ function AssignSheet({ routine, state, update, onClose, onDone, goal }) {
   const exMap = useMemo(() => Object.fromEntries(state.exercises.map((e) => [e.id, e])), [state.exercises])
   const toggle = (d) => setSel((s) => (s.includes(d) ? s.filter((x) => x !== d) : [...s, d]))
   const ok = n === 1 ? sel.length >= 1 : sel.length === n
-  const apply = () => {
-    if (!confirm('Esto reemplaza tu plan semanal actual (los demás días quedan como descanso) y quita los cambios por fecha de hoy en adelante. ¿Continuar?')) return
+  const apply = async () => {
+    if (!(await coach('Esto reemplaza tu plan semanal actual (los demás días quedan como descanso) y quita los cambios por fecha de hoy en adelante. ¿Seguimos?', { yes: 'Sí, usar esta rutina' }))) return
     const ordered = WEEK_ORDER.filter((d) => sel.includes(d))
     update((s) => {
       const plan = {}

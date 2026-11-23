@@ -10,6 +10,7 @@ import { REST_DAY, missedDay, moveMissedToToday } from './moves'
 import { GoalChip, GoalSheet } from './GoalPanel'
 import { FoodCard, FoodSheet } from './Food'
 import { CheckinBanner } from './RoadmapPanel'
+import { coach, coachAlert } from './coach'
 
 const saludo = (d) => (d.getHours() < 12 ? 'Buenos días' : d.getHours() < 20 ? 'Buenas tardes' : 'Buenas noches')
 const FRASES = ['Primero el trabajo, después el resultado.', 'No necesitas motivación: necesitas un sistema.', 'Los días sin ganas son los que más importan.', 'Cada hábito es un voto a favor de tu nueva identidad.', 'Sobrecarga progresiva: mejora algo en cada sesión.', 'Consistencia, no perfección.', 'Recuperas = progresas.']
@@ -28,10 +29,10 @@ export default function Today({ state, update, onStartTraining }) {
   const [foodOpen, setFoodOpen] = useState(false)
   const missed = missedDay(state, now)
   const [movedMsg, setMovedMsg] = useState('')
-  const missedHere = () => {
+  const missedHere = async () => {
     const r = moveMissedToToday(state, missed.key, k)
     if (r.needsConfirm) {
-      if (!confirm('No hay un día de descanso libre en los próximos 4 días para correr la rutina de hoy. Se reemplazará la de hoy. ¿Continuar?')) return
+      if (!(await coach('No hay un día de descanso libre en los próximos 4 días para correr la rutina de hoy, así que reemplazaré la de hoy. ¿Seguimos?', { yes: 'Sí, reemplazar' }))) return
       const f = moveMissedToToday(state, missed.key, k, true); update(() => f.state); return
     }
     update(() => r.state)

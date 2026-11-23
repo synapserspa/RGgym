@@ -5,6 +5,7 @@ import { DAY_NAMES, DAY_SHORT, MONTHS, addDays, dateKey, fmtDur, fmtNum, mondayO
 import { Button, Card, Chip, Header, Sheet, ZoneDot, cx, inputCls } from './ui'
 import { ExercisePicker } from './Library'
 import { applyMove, copyInto, hasSession, planOn } from './moves'
+import { coach, coachAlert } from './coach'
 
 export const isRest = (day) => !day || day.rest || !day.items?.length
 
@@ -105,9 +106,9 @@ function CopySheet({ destKey, state, update, onClose, onDone }) {
   const dest = parseKey(destKey)
   const destPlan = planOn(state, destKey); const destBusy = !isRest(destPlan)
   const days = Array.from({ length: 29 }, (_, i) => addDays(new Date(), i - 7)).filter((d) => { const k = dateKey(d); return k !== destKey && !isRest(planOn(state, k)) })
-  const pick = (d) => {
+  const pick = async (d) => {
     const k = dateKey(d); const p = planOn(state, k)
-    if (destBusy && !confirm(`Este día ya tiene «${destPlan.label}». ¿Reemplazarlo por «${p.label}»?`)) return
+    if (destBusy && !(await coach(`Este día ya tiene «${destPlan.label}». ¿Lo reemplazo por «${p.label}»?`, { yes: 'Sí, reemplazar' }))) return
     update((s) => copyInto(s, k, destKey)); onDone(`Copiada «${p.label}» al ${DAY_NAMES[dest.getDay()].toLowerCase()} ${dest.getDate()}`)
   }
   return (

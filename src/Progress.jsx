@@ -12,6 +12,7 @@ import { RoadmapSection } from './RoadmapPanel'
 import { PRFlash, RecordsSection } from './RecordsUI'
 import { ToolsSheet } from './Tools'
 import { FoodSheet } from './Food'
+import { coach, coachAlert } from './coach'
 
 const num = (v) => Number(String(v).replace(',', '.')) || 0
 
@@ -132,11 +133,11 @@ function SettingsSheet({ state, update, replaceAll, onClose }) {
     try {
       const j = JSON.parse(await file.text()); const d = j.data || j
       if (!Array.isArray(d.exercises) || !Array.isArray(d.history) || !d.plan) throw new Error('formato')
-      if (!confirm(`Se reemplazarán TODOS tus datos actuales por la copia (${d.history.length} entrenamientos, ${d.exercises.length} ejercicios). ¿Continuar?`)) return
+      if (!(await coach(`Se reemplazarán TODOS tus datos actuales por la copia (${d.history.length} entrenamientos, ${d.exercises.length} ejercicios). ¿Seguimos?`, { yes: 'Sí, importar' }))) return
       replaceAll({ ...d, active: null }); setMsg('Datos importados ✔')
     } catch { setMsg('Archivo no válido ✖') }
   }
-  const reset = () => { if (confirm('¿Borrar TODOS los datos y volver a la configuración inicial? Esta acción no se puede deshacer.')) { replaceAll({}); setMsg('Datos restablecidos') } }
+  const reset = async () => { if (await coach('¿Borrar TODOS tus datos y volver a empezar de cero? Esto no se puede deshacer.', { yes: 'Sí, borrar todo' })) { replaceAll({}); setMsg('Datos restablecidos') } }
   const Toggle = ({ k, label }) => (
     <button onClick={() => update((s) => ({ ...s, settings: { ...s.settings, [k]: !s.settings[k] } }))} className="w-full min-h-14 px-4 rounded-2xl bg-surface border border-line flex items-center justify-between font-bold">
       {label}<span className={state.settings[k] ? 'text-neon' : 'text-muted'}>{state.settings[k] ? 'ON' : 'OFF'}</span></button>)
@@ -286,7 +287,7 @@ export default function Progress({ state, update, replaceAll, saveError }) {
                     {Object.entries(byEx).map(([name, sets]) => (
                       <div key={name} className="mb-3"><div className="font-bold">{name}</div>
                         <div className="text-sm text-muted">{sets.map((x) => (x.reps ? `${x.reps}×${x.weight || 'pc'}` : '✓')).join('  ·  ')}</div></div>))}
-                    <Button variant="danger" className="w-full min-h-12 mt-1 text-base" onClick={() => confirm('¿Eliminar esta sesión del historial?') && update((st) => ({ ...st, history: st.history.filter((x) => x.id !== s.id) }))}><Trash2 size={18} /> Eliminar sesión</Button>
+                    <Button variant="danger" className="w-full min-h-12 mt-1 text-base" onClick={async () => (await coach('¿Eliminar esta sesión del historial?', { yes: 'Sí, eliminar' })) && update((st) => ({ ...st, history: st.history.filter((x) => x.id !== s.id) }))}><Trash2 size={18} /> Eliminar sesión</Button>
                   </div>)}
               </Card>)
           })}

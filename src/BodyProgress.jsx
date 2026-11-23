@@ -3,6 +3,7 @@ import { Camera, GitCompare, ImagePlus, Trash2 } from 'lucide-react'
 import { LineChart } from './Charts'
 import { compressImage, dateKey, fmtDate, parseKey, uid } from './lib'
 import { Button, Card, Chip, Empty, Sheet, cx } from './ui'
+import { coach, coachAlert } from './coach'
 
 const SERIES = [['weight', 'Peso', ' kg', '#39ff14'], ['waist', 'Cintura', ' cm', '#38bdf8'], ['bf', '% grasa', ' %', '#fbbf24']]
 
@@ -36,7 +37,7 @@ export function PhotosSection({ state, update }) {
   const add = async (e) => {
     const f = e.target.files?.[0]; e.target.value = ''; if (!f) return
     setBusy(true)
-    try { const img = await compressImage(f, 720, 0.6); update((s) => ({ ...s, photos: [{ id: uid(), date: dateKey(), kind, img }, ...(s.photos || [])] })) } catch { alert('No se pudo cargar la foto') }
+    try { const img = await compressImage(f, 720, 0.6); update((s) => ({ ...s, photos: [{ id: uid(), date: dateKey(), kind, img }, ...(s.photos || [])] })) } catch { coachAlert('No pude cargar esa foto. Prueba con otra.') }
     setBusy(false)
   }
   const tap = (p) => {
@@ -67,7 +68,7 @@ export function PhotosSection({ state, update }) {
       </div>
       {view && (
         <Sheet open onClose={() => setView(null)} title={`${view.kind} · ${fmtDate(view.date)}`}
-          footer={<Button variant="danger" className="w-full" onClick={() => { if (confirm('¿Eliminar esta foto?')) { update((s) => ({ ...s, photos: s.photos.filter((p) => p.id !== view.id) })); setView(null) } }}><Trash2 size={20} /> Eliminar foto</Button>}>
+          footer={<Button variant="danger" className="w-full" onClick={async () => { if (await coach('¿Eliminar esta foto? No se puede recuperar.', { yes: 'Sí, eliminar' })) { update((s) => ({ ...s, photos: s.photos.filter((p) => p.id !== view.id) })); setView(null) } }}><Trash2 size={20} /> Eliminar foto</Button>}>
           <img src={view.img} alt={view.kind} className="w-full rounded-2xl" />
         </Sheet>)}
       {cmp && (

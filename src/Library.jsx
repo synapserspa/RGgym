@@ -3,6 +3,7 @@ import { Plus, Search, Camera, ImagePlus, Trash2, Pencil, Timer } from 'lucide-r
 import { LEVELS, ZONES, ZONE_COLOR } from './data'
 import { compressImage, uid } from './lib'
 import { Button, Card, Chip, Empty, ExerciseImage, Field, Header, Sheet, ZoneDot, inputCls } from './ui'
+import { coach, coachAlert } from './coach'
 
 export function ExerciseDetail({ ex, onClose, onEdit, footer }) {
   if (!ex) return null
@@ -38,7 +39,7 @@ function ExerciseForm({ initial, onSave, onDelete, onClose }) {
     const file = e.target.files?.[0]; e.target.value = ''
     if (!file) return
     setBusy(true)
-    try { set('img', await compressImage(file)) } catch { alert('No se pudo cargar la imagen') }
+    try { set('img', await compressImage(file)) } catch { coachAlert('No pude cargar esa imagen. Prueba con otra.') }
     setBusy(false)
   }
   const valid = f.name.trim().length > 0
@@ -47,7 +48,7 @@ function ExerciseForm({ initial, onSave, onDelete, onClose }) {
   return (
     <Sheet open onClose={onClose} title={initial ? 'Editar ejercicio' : 'Nuevo ejercicio'}
       footer={<div className="flex gap-3">
-        {initial?.custom && <Button variant="danger" onClick={() => confirm('¿Eliminar este ejercicio?') && onDelete(f.id)} aria-label="Eliminar"><Trash2 size={22} /></Button>}
+        {initial?.custom && <Button variant="danger" onClick={async () => (await coach('¿Eliminar este ejercicio? No se puede recuperar.', { yes: 'Sí, eliminar' })) && onDelete(f.id)} aria-label="Eliminar"><Trash2 size={22} /></Button>}
         <Button className="flex-1" disabled={!valid} onClick={save}>Guardar</Button>
       </div>}>
       <div className="mb-4">
