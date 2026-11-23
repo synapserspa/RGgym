@@ -39,7 +39,7 @@ function initialState() {
 }
 
 // Migración de datos guardados: actualiza nombres/instrucciones de ejercicios precargados (español latino)
-const DATA_VERSION = 3
+const DATA_VERSION = 4
 function migrate(s) {
   const out = { ...initialState(), ...s, settings: { ...DEFAULT_SETTINGS, ...(s.settings || {}) } }
   if ((s.dataVersion || 1) < DATA_VERSION) {

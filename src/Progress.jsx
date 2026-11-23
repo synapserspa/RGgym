@@ -5,7 +5,8 @@ import { SOUNDS, VOLUMES, playEnd, speak, unlockAudio } from './audio'
 import { DAY_SHORT, addDays, compressImage, dateKey, fmtDate, fmtDur, fmtNum, mondayOf, uid } from './lib'
 import { Button, Card, Chip, Empty, Header, Sheet, ZoneDot, cx, inputCls } from './ui'
 import { GoalChip, GoalSheet } from './GoalPanel'
-import { GuideButton, HabitInfoSheet, InfoButton, Method345, StandardsGuide } from './Method'
+import { GuideButton, HabitInfoSheet, InfoButton, Method345, StandardsGuide, fmtSteps } from './Method'
+import BodyCalculator from './Calculator'
 
 const num = (v) => Number(String(v).replace(',', '.')) || 0
 
@@ -57,7 +58,7 @@ function Habits({ state, update }) {
         {HABITS.map((h) => { const on = today.includes(h.id)
           return <div key={h.id} className="flex gap-2">
             <button onClick={() => toggle(h.id)} className={cx('flex-1 min-w-0 min-h-14 px-4 rounded-2xl border flex items-center gap-3 text-left font-semibold', on ? 'bg-neon/15 border-neon' : 'bg-surface border-line')}>
-              <span className={cx('size-7 rounded-lg border-2 flex items-center justify-center shrink-0', on ? 'bg-neon border-neon text-black' : 'border-muted')}>{on && '✓'}</span><span className="leading-tight">{h.label}</span></button>
+              <span className={cx('size-7 rounded-lg border-2 flex items-center justify-center shrink-0', on ? 'bg-neon border-neon text-black' : 'border-muted')}>{on && '✓'}</span><span className="leading-tight">{h.id === 'pasos' ? `${fmtSteps(state.settings.steps || 10000)} pasos` : h.label}</span></button>
             <InfoButton onClick={() => setInfo(h.id)} />
           </div> })}
       </div>
@@ -66,7 +67,7 @@ function Habits({ state, update }) {
         <div className="grid grid-cols-7 gap-1.5">{days.map((d, i) => { const n = (state.habits[dateKey(d)] || []).length
           return <div key={i} className="text-center"><div className="text-xs text-muted mb-1">{DAY_SHORT[i]}</div><div className="h-10 rounded-xl flex items-center justify-center text-sm font-bold" style={{ background: `rgba(57,255,20,${n / HABITS.length * 0.8 + 0.05})`, color: n > HABITS.length / 2 ? '#000' : '#fff' }}>{n}</div></div> })}</div>
       </Card>
-      {info && <HabitInfoSheet id={info} onClose={() => setInfo(null)} />}
+      {info && <HabitInfoSheet id={info} state={state} update={update} onClose={() => setInfo(null)} />}
       {guide && <StandardsGuide onClose={() => setGuide(false)} onOpen345={() => { setGuide(false); setM345(true) }} />}
       {m345 && <Method345 state={state} update={update} onClose={() => setM345(false)} />}
     </>
@@ -96,35 +97,6 @@ function Measures({ state, update }) {
           <button aria-label="Borrar registro" onClick={() => update((s) => ({ ...s, measures: s.measures.filter((x) => x.id !== m.id) }))} className="size-11 rounded-xl bg-surface2 flex items-center justify-center text-muted"><Trash2 size={18} /></button>
         </Card>))}</div>
     </>
-  )
-}
-
-function Macros({ state, update }) {
-  const m = state.macrosCalc || { weight: '', kcal: '', deficit: 400, prot: 1.6, fat: 0.8 }
-  const set = (p) => update((s) => ({ ...s, macrosCalc: { ...m, ...p } }))
-  const w = num(m.weight); const target = num(m.kcal) - m.deficit
-  const p = w * m.prot, g = w * m.fat, c = Math.max(0, (target - p * 4 - g * 9) / 4)
-  const ok = w > 0 && num(m.kcal) > 0
-  return (
-    <Card>
-      <div className="grid grid-cols-2 gap-3 mb-3">
-        <label className="text-xs text-muted font-semibold">Peso (kg)<input inputMode="decimal" className={inputCls + ' mt-1'} value={m.weight} onChange={(e) => set({ weight: e.target.value })} /></label>
-        <label className="text-xs text-muted font-semibold">Mantenimiento (kcal)<input inputMode="numeric" className={inputCls + ' mt-1'} value={m.kcal} onChange={(e) => set({ kcal: e.target.value })} /></label>
-      </div>
-      <div className="text-xs text-muted font-semibold mb-1.5">Ajuste de calorías (déficit o superávit)</div>
-      <div className="flex gap-2 mb-3">{[[500, '−500'], [400, '−400'], [300, '−300'], [0, 'Mantener'], [-250, '+250']].map(([d, l]) => <Chip key={d} active={m.deficit === d} onClick={() => set({ deficit: d })}>{l}</Chip>)}</div>
-      <div className="text-xs text-muted font-semibold mb-1.5">Proteína (g/kg) · guía 0,8-1,2 · evidencia 1,6-2,2</div>
-      <div className="flex gap-2 mb-3 flex-wrap">{[1.2, 1.6, 1.8, 2.0, 2.2].map((d) => <Chip key={d} active={m.prot === d} onClick={() => set({ prot: d })}>{String(d).replace('.', ',')}</Chip>)}</div>
-      <div className="text-xs text-muted font-semibold mb-1.5">Grasa (g/kg)</div>
-      <div className="flex gap-2 mb-4">{[0.5, 0.8, 1.0].map((d) => <Chip key={d} active={m.fat === d} onClick={() => set({ fat: d })}>{String(d).replace('.', ',')}</Chip>)}</div>
-      {ok ? (
-        <div className="grid grid-cols-2 gap-3">
-          <div className="col-span-2 text-center bg-surface2 rounded-2xl py-3"><div className="text-3xl font-black text-neon">{fmtNum(target)} kcal</div><div className="text-xs text-muted">objetivo diario</div></div>
-          {[['Proteína', p, '#38bdf8'], ['Grasa', g, '#fbbf24'], ['Carbohidratos', c, '#a3e635']].map(([l, v, col], i) => (
-            <div key={l} className={cx('text-center bg-surface2 rounded-2xl py-3', i === 2 && 'col-span-2')}><div className="text-2xl font-black" style={{ color: col }}>{Math.round(v)} g</div><div className="text-xs text-muted">{l}</div></div>))}
-        </div>
-      ) : <p className="text-muted text-sm">Introduce tu peso y calorías de mantenimiento (calculadora Harris-Benedict).</p>}
-    </Card>
   )
 }
 
@@ -255,7 +227,7 @@ export default function Progress({ state, update, replaceAll, saveError }) {
 
         <Section icon={ListChecks} title="Estándares de hoy"><Habits state={state} update={update} /></Section>
         <Section icon={Scale} title="Peso, cintura, pasos y sueño"><Measures state={state} update={update} /></Section>
-        <Section icon={Calculator} title="Calculadora de macros"><Macros state={state} update={update} /></Section>
+        <Section icon={Calculator} title="Calculadora de déficit calórico y grasa corporal"><BodyCalculator state={state} update={update} /></Section>
 
         <h2 className="text-xl font-black mt-5 mb-3">Historial</h2>
         {!h.length && <Empty icon={Trophy} text="Aún no hay entrenamientos. ¡Completa el primero!" />}

@@ -27,7 +27,7 @@ export function GoalSheet({ state, update, onClose }) {
   }
   const restore = () => { update((s) => applyGoalToState(s, sel, exMap, true)); setMsg('Plan restaurado a lo original ✔') }
   const toMacros = () => {
-    update((s) => ({ ...s, macrosCalc: { weight: '', kcal: '', ...(s.macrosCalc || {}), ...g.macros } })); setMsg('Calculadora de macros configurada ✔ (abre Progreso → Calculadora)')
+    update((s) => ({ ...s, calc: { ...(s.calc || {}), pct: g.macros.pct, prot: g.macros.prot, fat: g.macros.fat } })); setMsg('Calculadora configurada ✔ (Progreso → Calculadora de déficit)')
   }
   return (
     <Sheet open onClose={onClose} title="Mi meta">
@@ -48,7 +48,7 @@ export function GoalSheet({ state, update, onClose }) {
       <div className="space-y-2.5 pb-2">
         <Button className="w-full" onClick={choose} disabled={sel === current}><Check size={20} strokeWidth={4} /> {sel === current ? 'Esta es tu meta' : 'Elegir esta meta'}</Button>
         <Button variant="secondary" className="w-full" onClick={adapt}><Sparkles size={20} /> Ajustar mi plan semanal a esta meta</Button>
-        <Button variant="secondary" className="w-full" onClick={toMacros}><Calculator size={20} /> Usar en mi calculadora de macros</Button>
+        <Button variant="secondary" className="w-full" onClick={toMacros}><Calculator size={20} /> Usar en mi calculadora de déficit</Button>
         <button onClick={restore} className="w-full min-h-12 text-muted font-bold flex items-center justify-center gap-2"><RotateCcw size={18} /> Volver a series y repeticiones originales</button>
         {msg && <p className="text-center font-semibold text-neon">{msg}</p>}
       </div>

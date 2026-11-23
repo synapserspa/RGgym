@@ -114,7 +114,7 @@ const BASE_EXERCISES = [
 
   // CARDIO
   ex('caminata', 'Caminata (pasos / NEAT)', 'Cardio', 'Principiante', 0, [
-    'Objetivo mínimo: 10.000+ pasos al día.', 'Ritmo vivo que permita hablar.', 'Es salud pura y te permite comer más en déficit.', 'Camina en bloques de 20-30 min.',
+    'Cumple tu meta diaria de pasos (la eliges en Progreso → Estándares).', 'Ritmo vivo que permita hablar.', 'Caminar suma actividad diaria y te permite comer un poco más en déficit.', 'Camina en bloques de 20-30 min.',
   ], { sets: 1, reps: '30 min', rir: '-' }),
   ex('cinta-bici', 'Cardio en trotadora / bicicleta', 'Cardio', 'Principiante', 0, [
     'Calienta 3-5 min a ritmo suave.', 'Mantén un ritmo moderado constante.', 'Zona 2: puedes hablar con frases cortas.', 'Termina con 3 min de vuelta a la calma.',
@@ -172,11 +172,11 @@ export const HABITS = [
   { id: 'entreno', label: 'Entrenamiento completado y registrado' },
   { id: 'proteina', label: 'Proteína objetivo alcanzada' },
   { id: 'calorias', label: 'Calorías dentro del objetivo' },
-  { id: 'pasos', label: '10.000+ pasos' },
+  { id: 'pasos', label: 'Pasos diarios' },
   { id: 'pantallas', label: 'Sin pantallas 1 h antes de dormir' },
   { id: 'sueno', label: '8 h de sueño' },
 ]
 
-export const DEFAULT_SETTINGS = { rest: 0, sound: true, vibrate: true, circuit: false, name: '', welcomed: false, bg: null, bgDim: 0.75, goal: 'fuerza-definicion',
+export const DEFAULT_SETTINGS = { rest: 0, sound: true, vibrate: true, circuit: false, name: '', welcomed: false, bg: null, bgDim: 0.75, goal: 'fuerza-definicion', steps: 10000,
   volume: 'alto', soundEnd: 'alarma', customSound: null, customSoundName: '', ticks: true, voice: true,
   secPerRep: 3, prepSec: 10, extraChange: 10 }

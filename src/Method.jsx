@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react'
 import { BookOpen, Check, Info, Target } from 'lucide-react'
 import { dateKey } from './lib'
-import { Button, Card, Sheet, inputCls } from './ui'
+import { Button, Card, Chip, Sheet, inputCls } from './ui'
 
 // Explicación de cada estándar diario (basado en la guía Método H)
 export const HABIT_INFO = {
   rutina: {
     title: 'Rutina de mañana (4 pasos)',
-    body: 'Son 4 acciones simples que haces cada mañana, siempre en el mismo orden, antes de empezar el día. Ejemplo del autor: lavarte los dientes → ducha fría → meditación → 3 agradecimientos. Otra opción: caminar 20 minutos o sacar al perro.',
+    body: 'Son 4 acciones simples que haces cada mañana, siempre en el mismo orden, antes de empezar el día. Ejemplo: lavarte los dientes → ducha fría → meditación → 3 agradecimientos. Otra opción: caminar 20 minutos o sacar al perro.',
     tip: 'Elige 4 pasos que sí puedas cumplir TODOS los días. Al terminarla, haces tu Método 3-4-5. Se llena en “Mi Método 3-4-5”.',
   },
   345: {
@@ -23,16 +23,16 @@ export const HABIT_INFO = {
   proteina: {
     title: 'Proteína objetivo alcanzada',
     body: 'La guía propone 0,8-1,2 g por kg de peso. Muchas guías científicas recomiendan más cuando estás en déficit: 1,6-2,2 g/kg, para conservar músculo. Si te cuesta mantener la fuerza o pasas hambre, súbela.',
-    tip: 'Calcula tus gramos en la Calculadora de macros de esta pantalla.',
+    tip: 'Calcula tus gramos en la Calculadora de déficit calórico de esta pantalla.',
   },
   calorias: {
     title: 'Calorías dentro del objetivo',
     body: 'Para definir necesitas un déficit moderado: tus calorías de mantenimiento menos 300-500 kcal. El ritmo sano de pérdida es ~0,5-1 % del peso por semana. Nunca hagas dietas sin grasa.',
-    tip: 'Usa la Calculadora de macros para obtener tus números.',
+    tip: 'Usa la Calculadora de déficit calórico para obtener tus números.',
   },
   pasos: {
-    title: '10.000+ pasos',
-    body: 'Es salud pura y te permite comer más estando en déficit (actividad diaria o NEAT). 10.000 es el mínimo; el autor hace unos 14.000.',
+    title: 'Pasos diarios',
+    body: 'Caminar suma actividad diaria (NEAT), cuida tu salud y te permite comer un poco más estando en déficit. Elige una cantidad que SÍ puedas cumplir todos los días, desde 5.000 pasos, y súbela poco a poco.',
     tip: 'Camina en bloques de 20-30 minutos repartidos en el día.',
   },
   pantallas: {
@@ -47,12 +47,33 @@ export const HABIT_INFO = {
   },
 }
 
-export function HabitInfoSheet({ id, onClose }) {
+export const STEP_OPTIONS = [5000, 6000, 7000, 8000, 9000, 10000, 12000, 15000]
+export const fmtSteps = (n) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, '.')
+
+// Cambia la meta de pasos y actualiza las rutinas de caminata del plan
+export function setStepsGoal(update, n) {
+  const fix = (p) => (p?.items ? { ...p, items: p.items.map((i) => (i.exId === 'caminata' && /pasos/.test(String(i.reps)) ? { ...i, reps: `${fmtSteps(n)} pasos` } : i)) } : p)
+  update((s) => ({
+    ...s, settings: { ...s.settings, steps: n },
+    plan: Object.fromEntries(Object.entries(s.plan).map(([d, p]) => [d, fix(p)])),
+    overrides: Object.fromEntries(Object.entries(s.overrides || {}).map(([k, p]) => [k, fix(p)])),
+  }))
+}
+
+export function HabitInfoSheet({ id, onClose, state, update }) {
   const h = HABIT_INFO[id]
   if (!h) return null
+  const steps = state?.settings?.steps || 10000
   return (
-    <Sheet open onClose={onClose} title={h.title}>
+    <Sheet open onClose={onClose} title={id === 'pasos' ? `Pasos diarios: ${fmtSteps(steps)}` : h.title}>
       <p className="text-lg leading-relaxed mb-4">{h.body}</p>
+      {id === 'pasos' && (
+        <div className="mb-4">
+          <div className="text-xs font-bold text-muted mb-2">MI META DIARIA</div>
+          <div className="flex flex-wrap gap-2">{STEP_OPTIONS.map((n) => <Chip key={n} active={steps === n} onClick={() => setStepsGoal(update, n)}>{fmtSteps(n)}</Chip>)}</div>
+          <p className="text-xs text-muted mt-2">Empieza por la que puedas cumplir sin esfuerzo y sube cuando se te haga fácil.</p>
+        </div>
+      )}
       <div className="rounded-2xl border border-neon/40 bg-neon/10 p-4"><div className="text-xs font-bold text-neon mb-1">CONSEJO</div><p className="leading-snug">{h.tip}</p></div>
     </Sheet>
   )
@@ -93,7 +114,7 @@ export function StandardsGuide({ onClose, onOpen345 }) {
           <p>• ¿Qué haría hoy la persona que quiero ser?</p></div>
       </Block>
       <Block n="4" title="Los otros 5 estándares">
-        <p>Entrenamiento registrado, proteína, calorías, 10.000+ pasos, sin pantallas 1 h antes de dormir y 8 h de sueño. Toca el <b>ⓘ</b> de cada uno para ver el detalle.</p>
+        <p>Entrenamiento registrado, proteína, calorías, tus pasos diarios, sin pantallas 1 h antes de dormir y 8 h de sueño. Toca el <b>ⓘ</b> de cada uno para ver el detalle.</p>
       </Block>
     </Sheet>
   )

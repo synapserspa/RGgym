@@ -90,7 +90,7 @@ export default function Today({ state, update, onStartTraining }) {
                 <button aria-label="Editar plan de hoy" onClick={() => setEdit(true)} className="size-12 rounded-2xl bg-surface2 flex items-center justify-center shrink-0"><Pencil size={20} /></button>
               </div>
               {doneToday.length > 0 && <div className="mt-3 flex items-center gap-2 text-neon font-bold"><Check size={20} strokeWidth={4} /> ¡Completado hoy! ({fmtDur(doneToday[0].durationSec)})</div>}
-              {rest && <p className="mt-3 text-muted leading-snug">Recuperas = progresas. Cumple los 10.000+ pasos, duerme 8 h y mantén tu nutrición.</p>}
+              {rest && <p className="mt-3 text-muted leading-snug">Recuperas = progresas. Cumple tu meta de pasos, duerme 8 h y mantén tu nutrición.</p>}
             </Card>
 
             {plan.items.length > 0 && (
