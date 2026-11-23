@@ -10,6 +10,9 @@ import { REST_DAY, missedDay, moveMissedToToday } from './moves'
 import { GoalChip, GoalSheet } from './GoalPanel'
 import { FoodCard, FoodSheet } from './Food'
 import { CheckinBanner } from './RoadmapPanel'
+import Runner from './Runner'
+import { PainBadge } from './PainPanel'
+import { STRETCH, stepsToSegments, warmupFor } from './warmup'
 import { coach, coachAlert } from './coach'
 
 const saludo = (d) => (d.getHours() < 12 ? 'Buenos días' : d.getHours() < 20 ? 'Buenas tardes' : 'Buenas noches')
@@ -27,6 +30,7 @@ export default function Today({ state, update, onStartTraining }) {
 
   const [goalOpen, setGoalOpen] = useState(false)
   const [foodOpen, setFoodOpen] = useState(false)
+  const [guided, setGuided] = useState(null) // 'warm' | 'stretch'
   const missed = missedDay(state, now)
   const [movedMsg, setMovedMsg] = useState('')
   const missedHere = async () => {
@@ -108,6 +112,10 @@ export default function Today({ state, update, onStartTraining }) {
                 <Button className={cx('w-full min-h-20 text-2xl rounded-3xl mb-3', !rest && 'pulse')} variant={rest ? 'secondary' : 'primary'} onClick={() => start(false)}>
                   <Play size={28} fill={rest ? 'white' : 'black'} /> {doneToday.length ? 'Entrenar otra vez' : rest ? 'Entrenar de todas formas' : 'Empezar entrenamiento'}
                 </Button>
+                <div className="grid grid-cols-2 gap-3 mb-3">
+                  <button onClick={() => { unlockAudio(); setGuided('warm') }} className="min-h-14 rounded-2xl border border-line bg-surface font-bold text-sm">🔥 Calentamiento guiado</button>
+                  <button onClick={() => { unlockAudio(); setGuided('stretch') }} className="min-h-14 rounded-2xl border border-line bg-surface font-bold text-sm">🧘 Estiramientos</button>
+                </div>
                 {canAuto && (
                   <button onClick={() => start(true)} className="w-full mb-5 rounded-3xl border-2 border-neon/60 bg-neon/10 p-4 flex items-center gap-4 text-left">
                     <span className="size-14 rounded-2xl bg-neon text-black flex items-center justify-center shrink-0"><Bot size={30} /></span>
@@ -120,7 +128,7 @@ export default function Today({ state, update, onStartTraining }) {
                     return (
                       <button key={i} onClick={() => setDetail(e)} className="w-full text-left flex items-center gap-3 bg-surface border border-line rounded-3xl p-2.5">
                         <ExerciseImage ex={e} compact className="size-16 shrink-0" />
-                        <div className="flex-1 min-w-0"><div className="font-bold text-lg leading-tight">{e.name}</div><div className="text-muted text-sm">{it.sets} × {it.reps}{it.weight ? ` · ${it.weight} kg` : ''}</div></div>
+                        <div className="flex-1 min-w-0"><div className="font-bold text-lg leading-tight">{e.name} {state.pain?.[e.id] && <PainBadge />}</div><div className="text-muted text-sm">{it.sets} × {it.reps}{it.weight ? ` · ${it.weight} kg` : ''}</div></div>
                         <ZoneDot zone={e.zone} size={12} />
                       </button>) })}
                 </div>
@@ -129,7 +137,8 @@ export default function Today({ state, update, onStartTraining }) {
           </>
         )}
       </div>
-      <ExerciseDetail ex={detail} onClose={() => setDetail(null)} />
+      <ExerciseDetail ex={detail} state={state} update={update} onClose={() => setDetail(null)} />
+      {guided && (() => { const w = guided === 'warm' ? warmupFor(plan?.zones) : STRETCH; return <Runner title={w.name} segments={stepsToSegments(w.name, w.steps)} settings={state.settings} onClose={() => setGuided(null)} /> })()}
       {foodOpen && <FoodSheet state={state} update={update} onClose={() => setFoodOpen(false)} />}
       {goalOpen && <GoalSheet state={state} update={update} onClose={() => setGoalOpen(false)} />}
       {edit && <PlanEditor dow={dow} date={k} state={state} update={update} onClose={() => setEdit(false)} />}

@@ -2,10 +2,12 @@ import { useRef, useState } from 'react'
 import { Plus, Search, Camera, ImagePlus, Trash2, Pencil, Timer } from 'lucide-react'
 import { LEVELS, ZONES, ZONE_COLOR } from './data'
 import { compressImage, uid } from './lib'
+import { PainBadge, PainSheet } from './PainPanel'
 import { Button, Card, Chip, Empty, ExerciseImage, Field, Header, Sheet, ZoneDot, inputCls } from './ui'
 import { coach, coachAlert } from './coach'
 
-export function ExerciseDetail({ ex, onClose, onEdit, footer }) {
+export function ExerciseDetail({ ex, onClose, onEdit, footer, state, update }) {
+  const [pain, setPain] = useState(false)
   if (!ex) return null
   return (
     <Sheet open onClose={onClose} title={ex.name} footer={footer}>
@@ -13,6 +15,7 @@ export function ExerciseDetail({ ex, onClose, onEdit, footer }) {
       <div className="flex flex-wrap gap-2 mb-4">
         <span className="px-3 py-1.5 rounded-full text-sm font-bold text-black" style={{ background: ZONE_COLOR[ex.zone] }}>{ex.zone}</span>
         <span className="px-3 py-1.5 rounded-full text-sm font-semibold bg-surface2">{ex.level}</span>
+        {state?.pain?.[ex.id] && <PainBadge className="!text-xs !px-3 !py-1.5" />}
         {ex.rest > 0 && <span className="px-3 py-1.5 rounded-full text-sm font-semibold bg-surface2 flex items-center gap-1"><Timer size={14} />{ex.rest}s descanso</span>}
       </div>
       <h3 className="font-bold text-muted text-sm mb-2">EJECUCIÓN PASO A PASO</h3>
@@ -24,6 +27,8 @@ export function ExerciseDetail({ ex, onClose, onEdit, footer }) {
           </li>
         ))}
       </ol>
+      {state && update && <Button variant="secondary" className="w-full mb-3" onClick={() => setPain(true)}>⚠ Me molesta · ver alternativas</Button>}
+      {pain && <PainSheet ex={ex} state={state} update={update} onClose={() => setPain(false)} />}
       {onEdit && <Button variant="secondary" className="w-full" onClick={onEdit}><Pencil size={20} /> Editar / cambiar foto</Button>}
     </Sheet>
   )
@@ -142,7 +147,7 @@ export default function Library({ state, update }) {
             <button key={e.id} onClick={() => setDetail(e)} className="text-left bg-surface border border-line rounded-3xl p-2.5">
               <ExerciseImage ex={e} className="w-full h-28" />
               <div className="px-1 pt-2">
-                <div className="font-bold leading-tight min-h-10 line-clamp-2">{e.name}</div>
+                <div className="font-bold leading-tight min-h-10 line-clamp-2">{e.name}</div>{state.pain?.[e.id] && <PainBadge />}
                 <div className="text-sm text-muted mt-1 flex items-center gap-1.5"><ZoneDot zone={e.zone} />{e.zone}{e.custom && <span className="ml-auto text-neon text-xs font-bold">MÍO</span>}</div>
               </div>
             </button>
@@ -150,7 +155,7 @@ export default function Library({ state, update }) {
         </div>
         {!list.length && <Empty text="No hay ejercicios con ese filtro" />}
       </div>
-      <ExerciseDetail ex={detail} onClose={() => setDetail(null)} onEdit={() => { setForm(detail) }} />
+      <ExerciseDetail ex={detail} state={state} update={update} onClose={() => setDetail(null)} onEdit={() => { setForm(detail) }} />
       {form && <ExerciseForm initial={form === 'new' ? null : form} onSave={save} onDelete={remove} onClose={() => setForm(null)} />}
     </div>
   )

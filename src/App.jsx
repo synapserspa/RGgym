@@ -19,7 +19,7 @@ const TABS = [
   { id: 'progress', label: 'Progreso', icon: BarChart3 },
 ]
 
-function LockScreen({ msg, kind, onRetry, onBackup }) {
+function LockScreen({ msg, kind, checking, onRetry, onBackup }) {
   const [info, setInfo] = useState('')
   const retry = async () => {
     setInfo('Verificando…')
@@ -31,10 +31,11 @@ function LockScreen({ msg, kind, onRetry, onBackup }) {
       <img src="./icons/icon-192.png" alt="" className="size-24 rounded-3xl mb-6 opacity-60" />
       <div className="text-5xl mb-3">🔒</div>
       <h1 className="text-2xl font-black leading-tight mb-2">{msg}</h1>
+      {checking && <p className="text-neon font-semibold mb-3">Verificando acceso…</p>}
       {kind === 'expired' && <p className="text-muted mb-4">Con internet, toca Reintentar.</p>}
       <p className="text-muted text-sm mb-8">Tus datos siguen guardados en este dispositivo. Puedes descargar tu copia de seguridad.</p>
       <button onClick={onBackup} className="w-full min-h-16 rounded-2xl bg-neon text-black text-lg font-black">Descargar mi copia de seguridad</button>
-      <button onClick={retry} className="w-full min-h-14 mt-3 rounded-2xl bg-surface2 border border-line text-lg font-bold">Reintentar</button>
+      {kind !== 'unauthorized' && <button onClick={retry} disabled={checking} className="w-full min-h-14 mt-3 rounded-2xl bg-surface2 border border-line text-lg font-bold disabled:opacity-50">Reintentar</button>}
       {info && <p className="mt-3 text-sm text-muted">{info}</p>}
     </div>
   )
@@ -74,7 +75,7 @@ function AppInner() {
   useEffect(() => { initBackNav(() => { setToast(true); setTimeout(() => setToast(false), 2000) }) }, [])
   useBackLayer(tab !== 'today' && !state.active, () => setTab('today')) // atrás desde otra pestaña vuelve a "Entrenar"
 
-  if (access.locked) return <LockScreen msg={access.msg} kind={access.kind} onRetry={access.recheck} onBackup={() => downloadBackup(state)} />
+  if (access.locked) return <LockScreen msg={access.msg} kind={access.kind} checking={access.checking} onRetry={access.recheck} onBackup={() => downloadBackup(state)} />
   if (!state.settings.welcomed) return <Welcome onDone={(name) => update((s) => ({ ...s, settings: { ...s.settings, name: name.trim(), welcomed: true } }))} />
   if (state.active) return <Shell settings={state.settings}><ActiveWorkout state={state} update={update} onExit={() => setTab('progress')} /></Shell>
 

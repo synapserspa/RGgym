@@ -7,6 +7,7 @@ import { Button, Card, Chip, ExerciseImage, Header, Sheet, ZoneDot, cx, inputCls
 import { ExerciseDetail } from './Library'
 import { adaptItems, goalOf } from './goals'
 import { GoalChip, GoalSheet } from './GoalPanel'
+import TimersPanel from './Timers'
 import { coach, coachAlert } from './coach'
 
 const WEEK_ORDER = [1, 2, 3, 4, 5, 6, 0] // lunes ... domingo
@@ -201,15 +202,16 @@ export default function Calisthenics({ state, update, onToday }) {
       <div className="px-4 pb-4">
         <GoalChip goal={state.settings.goal} onClick={() => setGoalOpen(true)} className="mb-3" />
         <div className="flex bg-surface rounded-2xl p-1 border border-line mb-4">
-          {[['rutinas', 'Rutinas'], ['progresiones', 'Progresiones'], ['test', 'Mi nivel']].map(([v, l]) => (
-            <button key={v} onClick={() => setView(v)} className={cx('flex-1 min-h-12 rounded-xl font-bold', view === v ? 'bg-neon text-black' : 'text-muted')}>{l}</button>))}
+          {[['rutinas', 'Rutinas'], ['progresiones', 'Progresión'], ['test', 'Mi nivel'], ['tiempos', 'Intervalos']].map(([v, l]) => (
+            <button key={v} onClick={() => setView(v)} className={cx('flex-1 min-h-12 rounded-xl font-bold text-sm', view === v ? 'bg-neon text-black' : 'text-muted')}>{l}</button>))}
         </div>
         {view === 'rutinas' && <Routines state={state} update={update} onToday={onToday} setDetail={setDetail} />}
         {view === 'progresiones' && <Progressions state={state} setDetail={setDetail} />}
+        {view === 'tiempos' && <TimersPanel state={state} update={update} />}
         {view === 'test' && <LevelTest state={state} update={update} setDetail={setDetail} openRoutine={setOpenId} />}
       </div>
       {r && <RoutineSheet routine={r} state={state} update={update} onClose={() => setOpenId(null)} onToday={() => { setOpenId(null); onToday() }} setDetail={setDetail} />}
-      <ExerciseDetail ex={detail} onClose={() => setDetail(null)} />
+      <ExerciseDetail ex={detail} state={state} update={update} onClose={() => setDetail(null)} />
       {goalOpen && <GoalSheet state={state} update={update} onClose={() => setGoalOpen(false)} />}
     </div>
   )

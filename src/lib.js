@@ -30,6 +30,7 @@ function initialState() {
     plan: SEED_PLAN,
     method: { goals: ['', '', ''], morning: ['', '', '', ''], morningDone: {}, tasks: {} }, // Método 3-4-5
     roadmap: null,     // hoja de ruta de 12 semanas { start, done, checkins }
+    pain: {},          // molestias marcadas { exId: { since, note } }
     food: {},          // comidas por fecha
     meals: SEED_MEALS, // comidas frecuentes
     photos: [],        // fotos de progreso

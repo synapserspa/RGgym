@@ -5,6 +5,9 @@ import { playDone, playEnd, playGo, playTick, speak, unlockAudio } from './audio
 import { Button, Card, Chip, ExerciseImage, Sheet, ZoneDot, cx, inputCls } from './ui'
 import { findPRs, suggestNext } from './records'
 import { ToolsSheet } from './Tools'
+import Runner from './Runner'
+import { PainSheet } from './PainPanel'
+import { STRETCH, stepsToSegments } from './warmup'
 import { coach, coachAlert } from './coach'
 
 // ---------- Secuencia de pasos ----------
@@ -91,10 +94,12 @@ export function ActiveWorkout({ state, update, onExit }) {
   const [notes, setNotes] = useState('')
   const [menu, setMenu] = useState(false)
   const [tools, setTools] = useState(false)
+  const [stretching, setStretching] = useState(false)
+  const [painOpen, setPainOpen] = useState(false)
   useBackLayer(true, () => setMenu(true)) // "atrás" en pleno entrenamiento abre el menú en vez de salir
 
   // Sugerencia de progresión según tu última sesión de este ejercicio
-  const sug = useMemo(() => (item && ex ? suggestNext(state.history, ex, item.reps) : null), [a.pos, state.history]) // eslint-disable-line
+  const sug = useMemo(() => (item && ex ? suggestNext(state.history, ex, item.reps) : null), [a.pos, state.history, item?.exId]) // eslint-disable-line
 
   // Valores iniciales de cada serie: la última serie del mismo ejercicio o los objetivos del plan
   useEffect(() => {
@@ -102,8 +107,10 @@ export function ActiveWorkout({ state, update, onExit }) {
     const last = [...a.logs].reverse().find((l) => l.item === step.item)
     setInp({ reps: last ? last.reps : sug?.reps || repsStart(item.reps) || 10, weight: last ? last.weight : sug ? sug.weight : item.weight || 0 })
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [a.pos])
+  }, [a.pos, item?.exId])
 
+  // Cambia el ejercicio actual por una alternativa (para las series que faltan)
+  const swapTo = (alt) => setActive((cur) => ({ items: cur.items.map((it, i) => (i === step.item ? { ...it, exId: alt.id, weight: 0, base: undefined } : it)) }))
   const setActive = (p) => update((s) => (s.active ? { ...s, active: { ...s.active, ...(typeof p === 'function' ? p(s.active) : p) } } : s))
 
   // ----- Registrar una serie -----
@@ -244,6 +251,7 @@ export function ActiveWorkout({ state, update, onExit }) {
           <h2 className="text-4xl font-black mb-2">¡Rutina completa!</h2>
           <p className="text-muted text-lg mb-8">{a.logs.length} series · {fmtDur(elapsed)} · {fmtNum(volume)} kg</p>
           <Button className="w-full min-h-20 text-2xl rounded-3xl" onClick={() => setSummary(true)}>Terminar y guardar</Button>
+          <Button variant="secondary" className="w-full mt-3" onClick={() => { unlockAudio(); setStretching(true) }}>🧘 Estiramientos guiados (6 min)</Button>
           <button onClick={undo} className="mt-4 min-h-12 text-muted font-semibold flex items-center gap-2"><Undo2 size={18} /> Deshacer última serie</button>
         </div>
       ) : (
@@ -262,6 +270,9 @@ export function ActiveWorkout({ state, update, onExit }) {
               {a.mode === 'circuit' && <div className="text-sm font-bold bg-surface2 rounded-full px-3 py-1">Ronda {step.round + 1} de {Math.max(...a.items.map((i) => i.sets))}</div>}
             </div>
             <h2 className="text-2xl font-black leading-tight mb-2">{ex.name}</h2>
+            {state.pain?.[ex.id]
+              ? <button onClick={() => setPainOpen(true)} className="w-full text-left rounded-2xl border border-amber-400/60 bg-amber-400/10 p-3 mb-2 text-sm"><b className="text-amber-300">⚠ Marcaste molestia en este ejercicio.</b> Toca para ver alternativas.</button>
+              : <button onClick={() => setPainOpen(true)} className="min-h-11 px-4 rounded-full border border-line bg-surface text-sm font-bold text-muted mb-2">⚠ Me duele este ejercicio</button>}
 
             <div className="flex items-center justify-between my-3">
               <div>
@@ -364,6 +375,8 @@ export function ActiveWorkout({ state, update, onExit }) {
         </div>
       )}
 
+      {painOpen && ex && <PainSheet ex={ex} state={state} update={update} onSwap={(alt) => swapTo(alt)} onClose={() => setPainOpen(false)} />}
+      {stretching && <Runner title={STRETCH.name} segments={stepsToSegments(STRETCH.name, STRETCH.steps)} settings={S} onClose={() => setStretching(false)} />}
       {tools && <ToolsSheet state={state} update={update} initialWeight={inp.weight || ''} onClose={() => setTools(false)} />}
 
       {/* Menú */}

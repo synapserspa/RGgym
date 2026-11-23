@@ -1,5 +1,5 @@
 import { useMemo, useRef, useState } from 'react'
-import { Calculator, Flag, Utensils, Volume2, Camera, ImagePlus, ChevronDown, ChevronUp, Download, Flame, Scale, Settings, Trash2, Upload, Trophy, ListChecks, Clock, Weight } from 'lucide-react'
+import { Calculator, AlertTriangle, Flag, Utensils, Volume2, Camera, ImagePlus, ChevronDown, ChevronUp, Download, Flame, Scale, Settings, Trash2, Upload, Trophy, ListChecks, Clock, Weight } from 'lucide-react'
 import { HABITS, ZONE_COLOR } from './data'
 import { SOUNDS, VOLUMES, playEnd, speak, unlockAudio } from './audio'
 import { DAY_SHORT, addDays, compressImage, dateKey, fmtDate, fmtDur, fmtNum, mondayOf, uid } from './lib'
@@ -9,6 +9,7 @@ import { GuideButton, HabitInfoSheet, InfoButton, Method345, StandardsGuide, fmt
 import BodyCalculator from './Calculator'
 import { BodyCharts, PhotosSection } from './BodyProgress'
 import { RoadmapSection } from './RoadmapPanel'
+import { PainList } from './PainPanel'
 import { PRFlash, RecordsSection } from './RecordsUI'
 import { ToolsSheet } from './Tools'
 import { FoodSheet } from './Food'
@@ -261,6 +262,7 @@ export default function Progress({ state, update, replaceAll, saveError }) {
         <Section icon={Flag} title="Hoja de ruta de 12 semanas"><RoadmapSection state={state} update={update} /></Section>
         <Section icon={Camera} title="Fotos de progreso"><PhotosSection state={state} update={update} /></Section>
         <Section icon={Utensils} title="Nutrición: mis comidas"><FoodButton state={state} update={update} /></Section>
+        <Section icon={AlertTriangle} title={`Molestias${Object.keys(state.pain || {}).length ? ` (${Object.keys(state.pain).length})` : ''}`}><PainList state={state} update={update} /></Section>
         <Section icon={Trophy} title="Récords y progreso por ejercicio"><RecordsSection state={state} /></Section>
         <Section icon={Calculator} title="Calculadora de déficit calórico y grasa corporal"><BodyCalculator state={state} update={update} /></Section>
         <Section icon={Weight} title="Herramientas: discos y 1RM"><ToolsButtons state={state} update={update} /></Section>
