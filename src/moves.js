@@ -48,3 +48,9 @@ export function moveMissedToToday(state, missedKey, todayKey, force = false) {
   ov[todayKey] = { ...pm }; ov[missedKey] = { ...REST_DAY }
   return { state: { ...state, overrides: ov }, pushedTo }
 }
+
+// Copia la rutina de otro día dentro de este día (solo para esa fecha)
+export function copyInto(state, srcKey, destKey) {
+  const p = planOn(state, srcKey)
+  return { ...state, overrides: { ...(state.overrides || {}), [destKey]: { ...p, rest: false, items: p.items.map((i) => ({ ...i })) } } }
+}

@@ -121,12 +121,29 @@ export const CALI_EXERCISES = [
 ]
 
 // ---------- Rutinas completas ----------
-const it = (exId, sets, reps, rir = '1-2', weight = 0) => ({ exId, sets, reps, rir, weight })
+const it = (exId, sets, reps, rir = '1-2', weight = 0, rest) => ({ exId, sets, reps, rir, weight, ...(rest ? { rest } : {}) })
 const WARM = [it('cal-mov-munecas', 1, '45 s', '-'), it('cal-mov-hombros', 1, '45 s', '-')]
 
 export const CALI_ROUTINES = [
   {
-    id: 'r-cuerpo-3', name: 'Cuerpo completo · 3 días', mode: 'casa', level: 'Principiante', minutes: 40, perWeek: 3,
+    id: 'r-fuerza-def', goals: ['fuerza-definicion'], name: 'Fuerza + definición · 4 días', mode: 'equipo', level: 'Avanzado', minutes: 65, perWeek: 4,
+    desc: 'Pensada para ganar fuerza mientras bajas grasa: dos días pesados de básicos y dos días de volumen con acondicionamiento metabólico al final.',
+    days: [
+      { label: 'Superior · fuerza', items: [...WARM, it('cal-dominada-lastre', 5, '3-5'), it('press-banca', 5, '4-6'), it('cal-remo-mancuerna', 4, '6-8 por lado'), it('press-militar', 3, '6-8'), it('cal-fondos-banca', 3, '10-12', '1'), it('cal-escaladores', 3, '30 s', '-', 0, 30)] },
+      { label: 'Inferior · fuerza', items: [...WARM, it('sentadilla', 5, '4-6'), it('peso-muerto-rumano', 4, '5-6'), it('cal-bulgara', 3, '6-8 por lado'), it('hip-thrust', 3, '6-8'), it('gemelos-pie', 3, '10-12', '0-1'), it('elevacion-piernas', 3, '8-12', '0-1')] },
+      { label: 'Superior · volumen y metabólico', items: [...WARM, it('press-inclinado', 4, '6-8'), it('cal-dominada', 4, '6-8'), it('cal-flexion-diamante', 3, '8-12', '1'), it('cal-remo-banda', 3, '12-15', '1'), it('elevaciones-laterales', 3, '12-15', '0-1'), it('cal-burpee', 3, '10', '1', 0, 45)] },
+      { label: 'Inferior · volumen y acondicionamiento', items: [...WARM, it('sentadilla-hack', 4, '8-10'), it('cal-zancada', 3, '10 por lado'), it('cal-sentadilla-salto', 3, '10', '1', 0, 60), it('cal-puente-gluteo', 3, '15', '1'), it('cal-plancha', 3, '45 s', '-', 0, 30), it('cal-hollow', 3, '25 s', '-', 0, 30)] },
+    ],
+  },
+  {
+    id: 'r-hiit', goals: ['bajar-peso', 'fuerza-definicion'], name: 'Quema grasa · HIIT 25 min', mode: 'casa', level: 'Intermedio', minutes: 25, perWeek: 3, circuit: true,
+    desc: 'Circuito de intervalos: 40 segundos de trabajo y poco descanso entre ejercicios. Sin implementos.',
+    days: [
+      { label: 'HIIT sin implementos', circuit: true, items: [...WARM.map((w) => w), it('cal-burpee', 4, '40 s', '-', 0, 25), it('cal-sentadilla-salto', 4, '40 s', '-', 0, 25), it('cal-escaladores', 4, '40 s', '-', 0, 25), it('cal-flexion', 4, '40 s', '-', 0, 25), it('cal-zancada', 4, '40 s', '-', 0, 25), it('cal-plancha', 4, '40 s', '-', 0, 25)] },
+    ],
+  },
+  {
+    id: 'r-cuerpo-3', goals: ['bajar-peso', 'masa'], name: 'Cuerpo completo · 3 días', mode: 'casa', level: 'Principiante', minutes: 40, perWeek: 3,
     desc: 'Tres sesiones de cuerpo completo solo con tu peso corporal. Ideal para construir la base de empuje, tirón, piernas y core.',
     days: [
       { label: 'Cuerpo completo A', items: [...WARM, it('cal-flexion', 3, '8-15'), it('cal-sentadilla', 3, '15-20'), it('cal-remo-invertido', 3, '8-12'), it('cal-puente-gluteo', 3, '15-20'), it('cal-plancha', 3, '45 s', '-')] },
@@ -135,14 +152,14 @@ export const CALI_ROUTINES = [
     ],
   },
   {
-    id: 'r-express', name: 'Express 20 min · circuito', mode: 'casa', level: 'Intermedio', minutes: 20, perWeek: 3, circuit: true,
+    id: 'r-express', goals: ['bajar-peso', 'fuerza-definicion'], name: 'Express 20 min · circuito', mode: 'casa', level: 'Intermedio', minutes: 20, perWeek: 3, circuit: true,
     desc: 'Una serie de cada ejercicio seguidos, y repites la ronda. Sin implementos: perfecto para días con poco tiempo.',
     days: [
       { label: 'Circuito express', circuit: true, items: [it('cal-burpee', 3, '10'), it('cal-sentadilla', 3, '20'), it('cal-flexion', 3, '12'), it('cal-escaladores', 3, '30 s', '-'), it('cal-puente-gluteo', 3, '20'), it('cal-plancha', 3, '40 s', '-')] },
     ],
   },
   {
-    id: 'r-upperlower-casa', name: 'Superior / Inferior en casa · 4 días', mode: 'casa', level: 'Intermedio', minutes: 45, perWeek: 4,
+    id: 'r-upperlower-casa', goals: ['fuerza-definicion', 'masa'], name: 'Superior / Inferior en casa · 4 días', mode: 'casa', level: 'Intermedio', minutes: 45, perWeek: 4,
     desc: 'Cuatro días repartidos entre tren superior e inferior, sin ningún implemento (usa una mesa para el remo).',
     days: [
       { label: 'Superior A', items: [...WARM, it('cal-flexion-pies-elevados', 4, '8-12'), it('cal-pike', 3, '6-10'), it('cal-remo-invertido', 4, '8-12'), it('cal-fondos-banca', 3, '12-15'), it('cal-superman', 3, '12-15', '1')] },
@@ -152,7 +169,7 @@ export const CALI_ROUTINES = [
     ],
   },
   {
-    id: 'r-fuerza-ppl', name: 'Fuerza calistenia · Empuje / Tirón / Piernas', mode: 'equipo', level: 'Avanzado', minutes: 60, perWeek: 3,
+    id: 'r-fuerza-ppl', goals: ['fuerza', 'fuerza-definicion'], name: 'Fuerza calistenia · Empuje / Tirón / Piernas', mode: 'equipo', level: 'Avanzado', minutes: 60, perWeek: 3,
     desc: 'Tu base de dominadas más barra, banca y mancuernas para sobrecargar. Tres días de fuerza con progresión de lastre.',
     days: [
       { label: 'Empuje', items: [...WARM, it('press-banca', 4, '6-8'), it('cal-pike', 3, '6-10'), it('cal-flexion-arquera', 3, '5-8 por lado'), it('press-militar', 3, '8-10'), it('cal-fondos-banca', 3, '12-15')] },
@@ -161,7 +178,7 @@ export const CALI_ROUTINES = [
     ],
   },
   {
-    id: 'r-hibrido', name: 'Híbrido barra + pesas · Superior / Inferior', mode: 'equipo', level: 'Intermedio', minutes: 60, perWeek: 4,
+    id: 'r-hibrido', goals: ['fuerza-definicion', 'masa'], name: 'Híbrido barra + pesas · Superior / Inferior', mode: 'equipo', level: 'Intermedio', minutes: 60, perWeek: 4,
     desc: 'Cuatro días combinando calistenia con barra y mancuernas: lo mejor de los dos mundos para fuerza y masa.',
     days: [
       { label: 'Superior A', items: [...WARM, it('press-banca', 4, '6-8'), it('cal-dominada-lastre', 4, '5-6'), it('press-militar', 3, '8-10'), it('cal-remo-mancuerna', 3, '8-12 por lado'), it('press-frances', 2, '10-12', '1'), it('curl-biceps', 2, '10-12', '0-1')] },
@@ -171,7 +188,7 @@ export const CALI_ROUTINES = [
     ],
   },
   {
-    id: 'r-dominadas', name: 'Camino a las dominadas avanzadas', mode: 'equipo', level: 'Avanzado', minutes: 50, perWeek: 3,
+    id: 'r-dominadas', goals: ['fuerza'], name: 'Camino a las dominadas avanzadas', mode: 'equipo', level: 'Avanzado', minutes: 50, perWeek: 3,
     desc: 'Especialización de tirón para quien ya hace ~8 dominadas: más repeticiones, lastre y la ruta hacia el muscle-up.',
     days: [
       { label: 'Fuerza máxima', items: [...WARM, it('cal-dominada-lastre', 5, '3-5', '1-2'), it('cal-dominada-explosiva', 4, '3-5'), it('cal-remo-mancuerna', 3, '8-10 por lado'), it('cal-colgado', 3, '30 s', '-')] },

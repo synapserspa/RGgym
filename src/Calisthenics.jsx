@@ -5,13 +5,16 @@ import { DAY_NAMES, DAY_SHORT, dateKey } from './lib'
 import { REST_DAY } from './moves'
 import { Button, Card, Chip, ExerciseImage, Header, Sheet, ZoneDot, cx, inputCls } from './ui'
 import { ExerciseDetail } from './Library'
+import { adaptItems, goalOf } from './goals'
+import { GoalChip, GoalSheet } from './GoalPanel'
 
 const WEEK_ORDER = [1, 2, 3, 4, 5, 6, 0] // lunes ... domingo
 
 // Convierte un día de una rutina en un plan del calendario
-const planFromDay = (routine, day, exMap) => {
+const planFromDay = (routine, day, exMap, goal = null) => {
   const zones = [...new Set(day.items.map((i) => exMap[i.exId]?.zone).filter((z) => z && z !== 'Cardio'))]
-  return { label: routine.days.length > 1 ? `${day.label}` : routine.name, zones, items: day.items.map((i) => ({ ...i })), rest: false, ...(day.circuit ? { circuit: true } : {}) }
+  const items = goal ? adaptItems(day.items, goal, exMap) : day.items.map((i) => ({ ...i }))
+  return { label: routine.days.length > 1 ? `${day.label}` : routine.name, zones, items, rest: false, ...(day.circuit ? { circuit: true } : {}) }
 }
 
 // Nivel y punto de partida según el test
@@ -28,7 +31,7 @@ function evaluate(t) {
   return { level, start, routines }
 }
 
-function AssignSheet({ routine, state, update, onClose, onDone }) {
+function AssignSheet({ routine, state, update, onClose, onDone, goal }) {
   const n = routine.days.length
   const [sel, setSel] = useState(() => (n === 4 ? [1, 2, 4, 5] : n === 3 ? [1, 3, 5] : n === 1 ? [1, 3, 5] : [1, 3, 5].slice(0, n)))
   const exMap = useMemo(() => Object.fromEntries(state.exercises.map((e) => [e.id, e])), [state.exercises])
@@ -40,7 +43,7 @@ function AssignSheet({ routine, state, update, onClose, onDone }) {
     update((s) => {
       const plan = {}
       for (let d = 0; d < 7; d++) plan[d] = { ...REST_DAY }
-      ordered.forEach((d, i) => { plan[d] = planFromDay(routine, routine.days[n === 1 ? 0 : i], exMap) })
+      ordered.forEach((d, i) => { plan[d] = planFromDay(routine, routine.days[n === 1 ? 0 : i], exMap, goal) })
       const today = dateKey(); const ov = Object.fromEntries(Object.entries(s.overrides || {}).filter(([k]) => k < today))
       return { ...s, plan, overrides: ov }
     })
@@ -61,8 +64,10 @@ function RoutineSheet({ routine, state, update, onClose, onToday, setDetail }) {
   const exMap = useMemo(() => Object.fromEntries(state.exercises.map((e) => [e.id, e])), [state.exercises])
   const [assign, setAssign] = useState(false)
   const [openDay, setOpenDay] = useState(0)
+  const [adapt, setAdapt] = useState(true)
+  const goal = adapt ? state.settings.goal : null
   const doToday = (day) => {
-    update((s) => ({ ...s, overrides: { ...(s.overrides || {}), [dateKey()]: planFromDay(routine, day, exMap) } }))
+    update((s) => ({ ...s, overrides: { ...(s.overrides || {}), [dateKey()]: planFromDay(routine, day, exMap, goal) } }))
     onToday()
   }
   const equipAll = [...new Set(routine.days.flatMap((d) => d.items.flatMap((i) => exMap[i.exId]?.equip || [])))]
@@ -74,6 +79,10 @@ function RoutineSheet({ routine, state, update, onClose, onToday, setDetail }) {
         <span className="px-3 py-1.5 rounded-full text-sm font-semibold bg-surface2">{routine.days.length === 1 ? '1 sesión' : `${routine.days.length} días/semana`}</span>
       </div>
       <p className="mb-3 leading-snug">{routine.desc}</p>
+      <button onClick={() => setAdapt((a) => !a)} className={cx('w-full min-h-14 rounded-2xl border px-4 mb-4 flex items-center justify-between font-bold text-left', adapt ? 'border-neon bg-neon/10' : 'border-line bg-surface')}>
+        <span>Ajustar a mi meta<span className="block text-xs font-medium text-muted">{goalOf(state.settings.goal).emoji} {goalOf(state.settings.goal).name}: series, repeticiones y descansos</span></span>
+        <span className={adapt ? 'text-neon' : 'text-muted'}>{adapt ? 'SÍ' : 'NO'}</span>
+      </button>
       <div className="text-xs font-bold text-muted mb-1">IMPLEMENTOS</div>
       <p className="text-sm mb-4">{equipAll.length ? equipAll.map((e) => EQUIP_LABEL[e] || e).join(' · ') : 'Ninguno: solo tu cuerpo 💪'}</p>
       <div className="space-y-3">
@@ -85,10 +94,10 @@ function RoutineSheet({ routine, state, update, onClose, onToday, setDetail }) {
             </button>
             {openDay === di && (
               <div className="border-t border-line p-3 space-y-2 bg-black/20">
-                {day.items.map((it, i) => { const e = exMap[it.exId]; if (!e) return null
+                {(adapt ? adaptItems(day.items, state.settings.goal, exMap) : day.items).map((it, i) => { const e = exMap[it.exId]; if (!e) return null
                   return <button key={i} onClick={() => setDetail(e)} className="w-full flex items-center gap-3 text-left bg-surface rounded-2xl p-2">
                     <ExerciseImage ex={e} compact className="size-14 shrink-0" />
-                    <div className="min-w-0 flex-1"><div className="font-bold leading-tight">{e.name}</div><div className="text-sm text-muted">{it.sets} × {it.reps}</div></div>
+                    <div className="min-w-0 flex-1"><div className="font-bold leading-tight">{e.name}</div><div className="text-sm text-muted">{it.sets} × {it.reps}{it.rest ? ` · descanso ${it.rest}s` : ''}</div></div>
                   </button> })}
                 <Button className="w-full !text-base mt-1" onClick={() => doToday(day)}><Play size={20} fill="black" /> Hacer hoy</Button>
               </div>
@@ -96,14 +105,15 @@ function RoutineSheet({ routine, state, update, onClose, onToday, setDetail }) {
           </Card>
         ))}
       </div>
-      {assign && <AssignSheet routine={routine} state={state} update={update} onClose={() => setAssign(false)} onDone={() => { setAssign(false); onClose(); onToday() }} />}
+      {assign && <AssignSheet goal={goal} routine={routine} state={state} update={update} onClose={() => setAssign(false)} onDone={() => { setAssign(false); onClose(); onToday() }} />}
     </Sheet>
   )
 }
 
 function Routines({ state, update, onToday, setDetail }) {
   const [filter, setFilter] = useState('todas'); const [open, setOpen] = useState(null)
-  const list = CALI_ROUTINES.filter((r) => filter === 'todas' || r.mode === filter)
+  const goal = state.settings.goal
+  const list = CALI_ROUTINES.filter((r) => filter === 'todas' || r.mode === filter).sort((a, b) => (b.goals?.includes(goal) ? 1 : 0) - (a.goals?.includes(goal) ? 1 : 0))
   const r = open && CALI_ROUTINES.find((x) => x.id === open)
   return (
     <>
@@ -115,7 +125,7 @@ function Routines({ state, update, onToday, setDetail }) {
       <div className="space-y-3">
         {list.map((x) => (
           <button key={x.id} onClick={() => setOpen(x.id)} className="w-full text-left bg-surface border border-line rounded-3xl p-4">
-            <div className="flex items-center gap-2 text-xs font-bold text-neon mb-1">{x.mode === 'casa' ? <><Home size={14} />SIN IMPLEMENTOS</> : <><Dumbbell size={14} />CON IMPLEMENTOS</>}<span className="text-muted">· {x.level}</span></div>
+            <div className="flex items-center gap-2 text-xs font-bold text-neon mb-1">{x.mode === 'casa' ? <><Home size={14} />SIN IMPLEMENTOS</> : <><Dumbbell size={14} />CON IMPLEMENTOS</>}<span className="text-muted">· {x.level}</span>{x.goals?.includes(goal) && <span className="ml-auto px-2 py-0.5 rounded-full bg-neon text-black">IDEAL PARA TU META</span>}</div>
             <div className="text-xl font-black leading-tight">{x.name}</div>
             <p className="text-sm text-muted mt-1 leading-snug">{x.desc}</p>
             <div className="flex gap-3 mt-3 text-sm font-semibold"><span>⏱ ~{x.minutes} min</span><span>📅 {x.days.length === 1 ? '1 sesión' : `${x.days.length} días`}</span></div>
@@ -182,12 +192,13 @@ function LevelTest({ state, update, setDetail, openRoutine }) {
 }
 
 export default function Calisthenics({ state, update, onToday }) {
-  const [view, setView] = useState('rutinas'); const [detail, setDetail] = useState(null); const [openId, setOpenId] = useState(null)
+  const [view, setView] = useState('rutinas'); const [detail, setDetail] = useState(null); const [openId, setOpenId] = useState(null); const [goalOpen, setGoalOpen] = useState(false)
   const r = openId && CALI_ROUTINES.find((x) => x.id === openId)
   return (
     <div>
       <Header title="Calistenia" subtitle="Fuerza con tu propio cuerpo" />
       <div className="px-4 pb-4">
+        <GoalChip goal={state.settings.goal} onClick={() => setGoalOpen(true)} className="mb-3" />
         <div className="flex bg-surface rounded-2xl p-1 border border-line mb-4">
           {[['rutinas', 'Rutinas'], ['progresiones', 'Progresiones'], ['test', 'Mi nivel']].map(([v, l]) => (
             <button key={v} onClick={() => setView(v)} className={cx('flex-1 min-h-12 rounded-xl font-bold', view === v ? 'bg-neon text-black' : 'text-muted')}>{l}</button>))}
@@ -198,6 +209,7 @@ export default function Calisthenics({ state, update, onToday }) {
       </div>
       {r && <RoutineSheet routine={r} state={state} update={update} onClose={() => setOpenId(null)} onToday={() => { setOpenId(null); onToday() }} setDetail={setDetail} />}
       <ExerciseDetail ex={detail} onClose={() => setDetail(null)} />
+      {goalOpen && <GoalSheet state={state} update={update} onClose={() => setGoalOpen(false)} />}
     </div>
   )
 }

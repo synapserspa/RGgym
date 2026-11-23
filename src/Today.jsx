@@ -7,6 +7,7 @@ import { Button, Card, Chip, Empty, ExerciseImage, Header, ZoneDot, cx } from '.
 import { ExerciseDetail } from './Library'
 import { PlanEditor, isRest } from './Calendar'
 import { REST_DAY, missedDay, moveMissedToToday } from './moves'
+import { GoalChip, GoalSheet } from './GoalPanel'
 
 const saludo = (d) => (d.getHours() < 12 ? 'Buenos días' : d.getHours() < 20 ? 'Buenas tardes' : 'Buenas noches')
 const FRASES = ['Primero el trabajo, después el resultado.', 'No necesitas motivación: necesitas un sistema.', 'Los días sin ganas son los que más importan.', 'Cada hábito es un voto a favor de tu nueva identidad.', 'Sobrecarga progresiva: mejora algo en cada sesión.', 'Consistencia, no perfección.', 'Recuperas = progresas.']
@@ -21,6 +22,7 @@ export default function Today({ state, update, onStartTraining }) {
   const [mode, setMode] = useState(plan?.circuit || state.settings.circuit ? 'circuit' : 'serial')
   const weekStart = mondayOf(now); const weekCount = new Set(state.history.filter((h) => h.date >= dateKey(weekStart)).map((h) => h.date)).size
 
+  const [goalOpen, setGoalOpen] = useState(false)
   const missed = missedDay(state, now)
   const [movedMsg, setMovedMsg] = useState('')
   const missedHere = () => {
@@ -62,6 +64,7 @@ export default function Today({ state, update, onStartTraining }) {
               : `$${plan.items.length} ejercicios · ${plan.items.reduce((a, i) => a + i.sets, 0)} series · ~${Math.round(estAuto / 60)} min`}
             {doneToday.length > 0 && ' · ¡Ya entrenaste hoy!'}
           </div>
+          <GoalChip goal={state.settings.goal} onClick={() => setGoalOpen(true)} className="mt-3" />
           <div className="text-sm text-neon/80 italic mt-2">“{FRASES[Math.floor(now / 864e5) % FRASES.length]}”</div>
         </div>
         {movedMsg && <div className="rounded-2xl border border-neon/50 bg-neon/10 p-3 mb-3 font-semibold">{movedMsg}</div>}
@@ -121,6 +124,7 @@ export default function Today({ state, update, onStartTraining }) {
         )}
       </div>
       <ExerciseDetail ex={detail} onClose={() => setDetail(null)} />
+      {goalOpen && <GoalSheet state={state} update={update} onClose={() => setGoalOpen(false)} />}
       {edit && <PlanEditor dow={dow} date={k} state={state} update={update} onClose={() => setEdit(false)} />}
     </div>
   )

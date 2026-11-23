@@ -177,6 +177,6 @@ export const HABITS = [
   { id: 'sueno', label: '8 h de sueño' },
 ]
 
-export const DEFAULT_SETTINGS = { rest: 0, sound: true, vibrate: true, circuit: false, name: '', welcomed: false, bg: null, bgDim: 0.75,
+export const DEFAULT_SETTINGS = { rest: 0, sound: true, vibrate: true, circuit: false, name: '', welcomed: false, bg: null, bgDim: 0.75, goal: 'fuerza-definicion',
   volume: 'alto', soundEnd: 'alarma', customSound: null, customSoundName: '', ticks: true, voice: true,
   secPerRep: 3, prepSec: 10, extraChange: 10 }

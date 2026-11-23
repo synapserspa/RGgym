@@ -1,10 +1,10 @@
 import { useMemo, useState } from 'react'
-import { ArrowDown, ArrowUp, ArrowRightLeft, Check, Dumbbell, ChevronLeft, ChevronRight, Moon, Plus, Trash2, Play, Pencil } from 'lucide-react'
+import { ArrowDown, ArrowUp, ArrowRightLeft, Check, Copy, Dumbbell, ChevronLeft, ChevronRight, Moon, Plus, Trash2, Play, Pencil } from 'lucide-react'
 import { ZONES, ZONE_COLOR } from './data'
 import { DAY_NAMES, DAY_SHORT, MONTHS, addDays, dateKey, fmtDur, fmtNum, mondayOf, parseKey } from './lib'
 import { Button, Card, Chip, Header, Sheet, ZoneDot, cx, inputCls } from './ui'
 import { ExercisePicker } from './Library'
-import { applyMove, hasSession, planOn } from './moves'
+import { applyMove, copyInto, hasSession, planOn } from './moves'
 
 export const isRest = (day) => !day || day.rest || !day.items?.length
 
@@ -100,6 +100,32 @@ function MoveSheet({ fromKey, state, update, onClose, onDone }) {
   )
 }
 
+// ---------- Copiar la rutina de otro día en este día ----------
+function CopySheet({ destKey, state, update, onClose, onDone }) {
+  const dest = parseKey(destKey)
+  const destPlan = planOn(state, destKey); const destBusy = !isRest(destPlan)
+  const days = Array.from({ length: 29 }, (_, i) => addDays(new Date(), i - 7)).filter((d) => { const k = dateKey(d); return k !== destKey && !isRest(planOn(state, k)) })
+  const pick = (d) => {
+    const k = dateKey(d); const p = planOn(state, k)
+    if (destBusy && !confirm(`Este día ya tiene «${destPlan.label}». ¿Reemplazarlo por «${p.label}»?`)) return
+    update((s) => copyInto(s, k, destKey)); onDone(`Copiada «${p.label}» al ${DAY_NAMES[dest.getDay()].toLowerCase()} ${dest.getDate()}`)
+  }
+  return (
+    <Sheet open onClose={onClose} title="Copiar rutina de otro día">
+      <p className="text-muted mb-3">Elige el día del que quieres copiar la rutina. Se copia solo a <b className="text-white">{fmtDateLong(destKey)}</b>; el día de origen no cambia.</p>
+      <div className="space-y-2">
+        {days.map((d) => { const k = dateKey(d); const p = planOn(state, k); const done = hasSession(state, k)
+          return <button key={k} onClick={() => pick(d)} className="w-full text-left rounded-2xl border border-line bg-surface p-3 flex items-center gap-3">
+            <div className="w-14 text-center shrink-0"><div className="text-xs font-bold text-muted uppercase">{DAY_NAMES[d.getDay()].slice(0, 3)}</div><div className="text-2xl font-black leading-none">{d.getDate()}</div></div>
+            <div className="min-w-0 flex-1"><div className="font-bold truncate">{p.label}</div><div className="text-xs text-muted">{MONTHS[d.getMonth()]} · {p.items.length} ejercicios{k === dateKey() ? ' · hoy' : ''}{done ? ' · hecho ✔' : ''}</div></div>
+            <Copy size={18} className="text-neon shrink-0" />
+          </button> })}
+        {!days.length && <p className="text-muted text-center py-8">No hay otros días con rutina.</p>}
+      </div>
+    </Sheet>
+  )
+}
+
 // Estado de un día: 'done' | 'planned' | 'rest'
 function dayInfo(date, state) {
   const k = dateKey(date); const dow = date.getDay(); const custom = !!state.overrides?.[k]; const plan = state.overrides?.[k] || state.plan[dow]
@@ -120,6 +146,7 @@ export default function Calendar({ state, update, onStart }) {
   const [sel, setSel] = useState(null) // Date seleccionada
   const [editDow, setEditDow] = useState(null) // { dow, date }
   const [moveFrom, setMoveFrom] = useState(null)
+  const [copyTo, setCopyTo] = useState(null)
   const [flash, setFlash] = useState('')
   const todayK = dateKey()
   const exMap = useMemo(() => Object.fromEntries(state.exercises.map((e) => [e.id, e])), [state.exercises])
@@ -207,6 +234,7 @@ export default function Calendar({ state, update, onStart }) {
             <Button variant="secondary" className="w-full" onClick={() => toggleRest(sel, selInfo)}>
               {selInfo.rest ? <><Dumbbell size={20} /> Convertir en día de entrenamiento</> : <><Moon size={20} /> Convertir en día de descanso</>}
             </Button>
+            {selInfo.status !== 'done' && <Button variant="secondary" className="w-full" onClick={() => { setCopyTo(selInfo.k); setSel(null) }}><Copy size={20} /> Copiar rutina de otro día</Button>}
             {!selInfo.rest && selInfo.status !== 'done' && <Button variant="secondary" className="w-full" onClick={() => { setMoveFrom(selInfo.k); setSel(null) }}><ArrowRightLeft size={20} /> Mover a otro día</Button>}
             <div className="space-y-2.5">
               <Button variant="secondary" className="w-full !text-base" onClick={() => { setEditDow({ dow: sel.getDay(), date: selInfo.k }); setSel(null) }}><Pencil size={18} /> Editar solo este día</Button>
@@ -231,6 +259,7 @@ export default function Calendar({ state, update, onStart }) {
           ))}
         </Sheet>
       )}
+      {copyTo && <CopySheet destKey={copyTo} state={state} update={update} onClose={() => setCopyTo(null)} onDone={(m) => { setCopyTo(null); setFlash(m); setTimeout(() => setFlash(''), 2500) }} />}
       {moveFrom && <MoveSheet fromKey={moveFrom} state={state} update={update} onClose={() => setMoveFrom(null)} onDone={(m) => { setMoveFrom(null); setFlash(m); setTimeout(() => setFlash(''), 2500) }} />}
       {flash && <div className="fixed bottom-24 inset-x-0 z-50 flex justify-center pointer-events-none"><div className="bg-neon text-black rounded-full px-5 py-3 font-bold shadow-lg">{flash} ✔</div></div>}
       {editDow && <PlanEditor dow={editDow.dow} date={editDow.date} state={state} update={update} onClose={() => setEditDow(null)} />}

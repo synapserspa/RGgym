@@ -28,7 +28,7 @@ export function workSeconds(it, ex, s) {
 // Descanso tras una serie. Manual: como siempre. Automático: suma tiempo para cambiar de máquina/ejercicio
 export function restFor(cur, next, items, exMap, mode, s, auto) {
   if (!next) return 0
-  const base = s.rest || exMap[items[cur.item].exId]?.rest || 0
+  const base = s.rest || items[cur.item].rest || exMap[items[cur.item].exId]?.rest || 0
   const endOfRound = next.round !== cur.round
   if (mode === 'circuit') return endOfRound ? base : (auto ? s.extraChange : 0)
   return base + (auto && next.item !== cur.item ? s.extraChange : 0)

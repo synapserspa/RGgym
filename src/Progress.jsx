@@ -4,6 +4,7 @@ import { HABITS, ZONE_COLOR } from './data'
 import { SOUNDS, VOLUMES, playEnd, speak, unlockAudio } from './audio'
 import { DAY_SHORT, addDays, compressImage, dateKey, fmtDate, fmtDur, fmtNum, mondayOf, uid } from './lib'
 import { Button, Card, Chip, Empty, Header, Sheet, ZoneDot, cx, inputCls } from './ui'
+import { GoalChip, GoalSheet } from './GoalPanel'
 import { GuideButton, HabitInfoSheet, InfoButton, Method345, StandardsGuide } from './Method'
 
 const num = (v) => Number(String(v).replace(',', '.')) || 0
@@ -110,12 +111,12 @@ function Macros({ state, update }) {
         <label className="text-xs text-muted font-semibold">Peso (kg)<input inputMode="decimal" className={inputCls + ' mt-1'} value={m.weight} onChange={(e) => set({ weight: e.target.value })} /></label>
         <label className="text-xs text-muted font-semibold">Mantenimiento (kcal)<input inputMode="numeric" className={inputCls + ' mt-1'} value={m.kcal} onChange={(e) => set({ kcal: e.target.value })} /></label>
       </div>
-      <div className="text-xs text-muted font-semibold mb-1.5">Déficit</div>
-      <div className="flex gap-2 mb-3">{[300, 400, 500].map((d) => <Chip key={d} active={m.deficit === d} onClick={() => set({ deficit: d })}>−{d}</Chip>)}</div>
+      <div className="text-xs text-muted font-semibold mb-1.5">Ajuste de calorías (déficit o superávit)</div>
+      <div className="flex gap-2 mb-3">{[[500, '−500'], [400, '−400'], [300, '−300'], [0, 'Mantener'], [-250, '+250']].map(([d, l]) => <Chip key={d} active={m.deficit === d} onClick={() => set({ deficit: d })}>{l}</Chip>)}</div>
       <div className="text-xs text-muted font-semibold mb-1.5">Proteína (g/kg) · guía 0,8-1,2 · evidencia 1,6-2,2</div>
-      <div className="flex gap-2 mb-3 flex-wrap">{[1.2, 1.6, 2.0].map((d) => <Chip key={d} active={m.prot === d} onClick={() => set({ prot: d })}>{String(d).replace('.', ',')}</Chip>)}</div>
+      <div className="flex gap-2 mb-3 flex-wrap">{[1.2, 1.6, 1.8, 2.0, 2.2].map((d) => <Chip key={d} active={m.prot === d} onClick={() => set({ prot: d })}>{String(d).replace('.', ',')}</Chip>)}</div>
       <div className="text-xs text-muted font-semibold mb-1.5">Grasa (g/kg)</div>
-      <div className="flex gap-2 mb-4">{[0.5, 0.8].map((d) => <Chip key={d} active={m.fat === d} onClick={() => set({ fat: d })}>{String(d).replace('.', ',')}</Chip>)}</div>
+      <div className="flex gap-2 mb-4">{[0.5, 0.8, 1.0].map((d) => <Chip key={d} active={m.fat === d} onClick={() => set({ fat: d })}>{String(d).replace('.', ',')}</Chip>)}</div>
       {ok ? (
         <div className="grid grid-cols-2 gap-3">
           <div className="col-span-2 text-center bg-surface2 rounded-2xl py-3"><div className="text-3xl font-black text-neon">{fmtNum(target)} kcal</div><div className="text-xs text-muted">objetivo diario</div></div>
@@ -128,7 +129,7 @@ function Macros({ state, update }) {
 }
 
 function SettingsSheet({ state, update, replaceAll, onClose }) {
-  const fileRef = useRef(); const [msg, setMsg] = useState('')
+  const fileRef = useRef(); const [msg, setMsg] = useState(''); const [goalSheet, setGoalSheet] = useState(false)
   const bgGal = useRef(); const bgCam = useRef(); const sndRef = useRef()
   const pickSound = (e) => {
     const f = e.target.files?.[0]; e.target.value = ''; if (!f) return
@@ -164,6 +165,9 @@ function SettingsSheet({ state, update, replaceAll, onClose }) {
   const photos = state.exercises.filter((e) => e.img).length
   return (
     <Sheet open onClose={onClose} title="Configuración">
+      <h3 className="text-sm font-bold text-muted mb-2">MI META</h3>
+      <GoalChip goal={state.settings.goal} onClick={() => setGoalSheet(true)} className="mb-5" />
+      {goalSheet && <GoalSheet state={state} update={update} onClose={() => setGoalSheet(false)} />}
       <h3 className="text-sm font-bold text-muted mb-2">TU NOMBRE</h3>
       <input className={inputCls + ' mb-5'} value={state.settings.name || ''} onChange={(e) => update((s) => ({ ...s, settings: { ...s.settings, name: e.target.value } }))} />
       <h3 className="text-sm font-bold text-muted mb-2">SONIDO DE AVISO</h3>
