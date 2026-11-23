@@ -28,6 +28,13 @@ const FLOORLN = [[10, FLOOR, 90, FLOOR, 2]]
 const STEP = [[34, FLOOR + 3, 74, FLOOR + 3, 5], [40, FLOOR + 3, 40, FLOOR + 3, 1]]
 const BAR_PU = [[28, 9, 72, 9, 4]]
 
+const PU_BENCH = [[52, 91, 92, 91, 6], [56, 91, 56, 102, 2], [88, 91, 88, 102, 2]]
+const PU_BAR = [[28, 18, 72, 18, 4]]
+const IR_BAR = [[56, 70, 88, 70, 4], [58, 70, 58, 102, 2], [86, 70, 86, 102, 2]]
+const BG_BENCH = [[2, 86, 24, 86, 6], [8, 86, 8, 102, 2]]
+const DB_BENCH = [[8, 82, 44, 82, 6], [14, 82, 14, 102, 2], [38, 82, 38, 102, 2]]
+const BD_BENCH = [[2, 80, 40, 80, 6], [8, 80, 8, 102, 2], [34, 80, 34, 102, 2]]
+
 const POSES = {
   curl: { track: 'W', cap: 'De pie · sube la pesa doblando el codo', a: { ...STAND, ua: 92, fa: 92, w: 'W' }, b: { ...STAND, ua: 88, fa: 300, w: 'W' } },
   press: { track: 'W', cap: 'De pie · empuja la pesa sobre la cabeza', a: { ...STAND, ua: 60, fa: 285, w: 'W' }, b: { ...STAND, ua: 272, fa: 272, w: 'W' } },
@@ -54,6 +61,31 @@ const POSES = {
   walk: { cardio: true, cap: 'Camina a paso firme', a: { p: [50, 60], t: 272, th: 60, sh: 95, th2: 108, sh2: 132, ua: 40, fa: 335, ua2: 135, fa2: 115 }, b: { p: [50, 60], t: 272, th: 108, sh: 132, th2: 60, sh2: 95, ua: 135, fa: 115, ua2: 40, fa2: 335 } },
   bike: { cardio: true, cap: 'Pedalea a ritmo constante', a: { p: [40, 66], t: 300, ua: 20, fa: 10, th: 65, sh: 105, th2: 0, sh2: 80, rings: [[26, 88, 12], [78, 88, 12]], eq: [[26, 88, 44, 70, 2], [44, 70, 74, 66, 2], [74, 66, 78, 88, 2], [26, 88, 60, 88, 2], [34, 70, 48, 70, 4]] }, b: { p: [40, 66], t: 300, ua: 20, fa: 10, th: 5, sh: 80, th2: 65, sh2: 105, rings: [[26, 88, 12], [78, 88, 12]], eq: [[26, 88, 44, 70, 2], [44, 70, 74, 66, 2], [74, 66, 78, 88, 2], [26, 88, 60, 88, 2], [34, 70, 48, 70, 4]] } },
   rope: { cardio: true, cap: 'Salta con las puntas de los pies', a: { ...STAND, ua: 60, fa: 30, eq: ropeArc(false) }, b: { p: [50, 50], t: 270, th: 90, sh: 90, ua: 60, fa: 30, eq: ropeArc(true) } },
+
+  // ---------- Calistenia ----------
+  pushup: { track: 'S', cap: 'Cuerpo recto · baja el pecho y empuja el piso', a: { p: [45.5, 85.7], t: 340.5, th: 160.5, sh: 160.5, ua: 90, fa: 90 }, b: { p: [44.4, 92.8], t: 349.4, th: 169.4, sh: 169.4, ua: 120, fa: 20 } },
+  pushupInc: { track: 'S', cap: 'Manos elevadas en una banca · baja el pecho al borde', a: { p: [43.3, 78.9], t: 330.5, th: 150.5, sh: 150.5, ua: 90, fa: 90, eq: PU_BENCH }, b: { p: [43.6, 86.1], t: 339.6, th: 159.6, sh: 159.6, ua: 120, fa: 20, eq: PU_BENCH } },
+  pike: { track: 'S', cap: 'Cadera alta en “V” · baja la cabeza entre las manos', a: { p: [47, 60], t: 45, th: 110, sh: 100, ua: 90, fa: 90 }, b: { p: [48, 58], t: 70, th: 110, sh: 100, ua: 40, fa: 84 } },
+  pullup: { track: 'S', cap: 'Cuélgate y sube hasta pasar la barbilla de la barra', a: { p: [50, 69], t: 270, ua: 270, fa: 270, th: 95, sh: 140, eq: PU_BAR }, b: { p: [50, 45.5], t: 270, ua: 100, fa: 275, th: 95, sh: 140, eq: PU_BAR } },
+  pullupW: { track: 'S', cap: 'Con peso colgado de la cintura · sin balanceo', a: { p: [50, 69], t: 270, ua: 270, fa: 270, th: 95, sh: 140, w: 'P', eq: PU_BAR }, b: { p: [50, 45.5], t: 270, ua: 100, fa: 275, th: 95, sh: 140, w: 'P', eq: PU_BAR } },
+  deadhang: { static: true, cap: 'MANTÉN · hombros activos, sin balancear', a: { p: [50, 69], t: 270, ua: 270, fa: 270, th: 95, sh: 140, eq: PU_BAR } },
+  invrow: { track: 'S', cap: 'Bajo una barra o mesa · lleva el pecho a la barra', a: { p: [44.1, 97.3], t: 355, th: 175, sh: 175, ua: 270, fa: 270, eq: IR_BAR }, b: { p: [47.6, 84.9], t: 340, th: 160, sh: 160, ua: 150, fa: 300, eq: IR_BAR } },
+  squatBW: { track: 'S', cap: 'Cadera atrás y abajo · pecho alto', a: { ...STAND, ua: 0, fa: 0 }, b: { p: [40, 82], t: 300, ua: 0, fa: 0, th: 352, sh: 93 } },
+  lunge: { track: 'S', cap: 'Paso largo atrás · baja las dos rodillas a 90°', a: { ...STAND, ua: 92, fa: 92, th2: 90, sh2: 90 }, b: { p: [48, 78], t: 270, ua: 92, fa: 92, th: 10, sh: 90, th2: 115, sh2: 178 } },
+  bulgara: { track: 'S', cap: 'Pie de atrás sobre la banca · baja con la pierna de adelante', a: { p: [48, 60], t: 270, ua: 92, fa: 92, th: 90, sh: 90, th2: 150, sh2: 140, eq: BG_BENCH }, b: { p: [46, 78], t: 275, ua: 92, fa: 92, th: 10, sh: 90, th2: 165, sh2: 177, eq: BG_BENCH } },
+  pistol: { track: 'S', cap: 'Una pierna · la otra estirada al frente, con apoyo', a: { p: [50, 60], t: 270, ua: 0, fa: 0, th: 90, sh: 90, th2: 20, sh2: 20 }, b: { p: [38, 84], t: 300, ua: 0, fa: 0, th: 352, sh: 93, th2: 0, sh2: 0 } },
+  jumpSquat: { track: 'S', cap: 'Baja a sentadilla y salta explosivo', a: { p: [40, 82], t: 300, ua: 0, fa: 0, th: 352, sh: 93 }, b: { p: [50, 48], t: 270, ua: 270, fa: 270, th: 90, sh: 90 } },
+  bridge: { track: 'P', cap: 'Acostado · empuja con los talones y sube la cadera', a: { p: [56, 96], t: 180, ua: 0, fa: 0, th: 300, sh: 95 }, b: { p: [54, 83], t: 165, ua: 0, fa: 0, th: 350, sh: 90 } },
+  plank: { static: true, cap: 'MANTÉN · cuerpo recto, abdomen y glúteos firmes', a: { p: [44.6, 92.4], t: 348, th: 168, sh: 168, ua: 90, fa: 0 } },
+  hollow: { static: true, cap: 'MANTÉN · espalda baja pegada al piso', a: { p: [50, 92], t: 195, ua: 190, fa: 190, th: 345, sh: 345 } },
+  lsit: { static: true, cap: 'MANTÉN · brazos rectos, piernas estiradas al frente', a: { p: [40, 96], t: 270, ua: 90, fa: 90, th: 0, sh: 0, eq: [[30, 95, 50, 95, 4], [40, 95, 40, 102, 2]] } },
+  handstand: { static: true, cap: 'MANTÉN · apoyado en la pared, cuerpo en línea', a: { p: [50, 51], t: 90, ua: 90, fa: 90, th: 280, sh: 285, eq: [[66, 4, 66, 104, 3]] } },
+  climber: { cardio: true, cap: 'En posición de flexión · alterna las rodillas al pecho', a: { p: [45.5, 85.7], t: 340.5, th: 160.5, sh: 160.5, th2: 20, sh2: 170, ua: 90, fa: 90 }, b: { p: [45.5, 85.7], t: 340.5, th: 20, sh: 170, th2: 160.5, sh2: 160.5, ua: 90, fa: 90 } },
+  burpee: { cardio: true, cap: 'Manos al piso, patada atrás, y salto con brazos arriba', a: { p: [40, 90], t: 300, ua: 90, fa: 90, th: 352, sh: 93 }, b: { p: [50, 48], t: 270, ua: 270, fa: 270, th: 90, sh: 90 } },
+  seatrow: { track: 'W', cap: 'Sentado con la banda en los pies · tira hacia el abdomen', a: { p: [30, 92], t: 270, ua: 10, fa: 0, th: 0, sh: 0, cable: [72, 90] }, b: { p: [30, 92], t: 270, ua: 165, fa: 0, th: 0, sh: 0, cable: [72, 90] } },
+  dbrow: { track: 'W', cap: 'Apoyado en la banca · lleva el codo hacia la cadera', a: { p: [60, 62], t: 190, ua: 105, fa: 95, ua2: 90, fa2: 90, th: 95, sh: 88, w: 'W', eq: DB_BENCH }, b: { p: [60, 62], t: 190, ua: 15, fa: 95, ua2: 90, fa2: 90, th: 95, sh: 88, w: 'W', eq: DB_BENCH } },
+  superman: { track: 'W', cap: 'Boca abajo · levanta brazos, pecho y piernas a la vez', a: { p: [55, 96], t: 180, ua: 180, fa: 180, th: 0, sh: 0 }, b: { p: [55, 96], t: 190, ua: 195, fa: 200, th: 350, sh: 345 } },
+  benchdip: { track: 'S', cap: 'Manos en la banca · baja los codos a 90° y empuja', a: { p: [32.3, 81], t: 265, ua: 90, fa: 90, th: 30, sh: 30, eq: BD_BENCH }, b: { p: [32.3, 93], t: 265, ua: 160, fa: 20, th: 0, sh: 25, eq: BD_BENCH } },
 
   // ---------- Vista frontal ----------
   // head = cabeza, sh = [hombro izq, der], el = codos, wr = muñecas, hip = cadera, kn = rodillas, ft = pies
@@ -82,6 +114,12 @@ export const FIGURE_OF = {
   'extension-cuadriceps': 'legext', 'sentadilla-hack': 'squat', 'curl-femoral-sentado': 'legcurlSeat', 'gemelos-sentado': 'calfSeat',
   'press-militar': 'press', 'elevaciones-laterales': 'lateral', 'curl-biceps': 'curl', 'curl-martillo': 'curl', 'triceps-polea': 'pushdown', 'press-frances': 'skull',
   crunch: 'crunch', 'elevacion-piernas': 'legraise', caminata: 'walk', 'cinta-bici': 'bike', comba: 'rope',
+  'cal-flexion-inclinada': 'pushupInc', 'cal-flexion': 'pushup', 'cal-flexion-pies-elevados': 'pushup', 'cal-flexion-diamante': 'pushup', 'cal-flexion-arquera': 'pushup',
+  'cal-pike': 'pike', 'cal-fondos-banca': 'benchdip', 'cal-colgado': 'deadhang', 'cal-remo-invertido': 'invrow', 'cal-dominada-negativa': 'pullup', 'cal-dominada': 'pullup',
+  'cal-dominada-supina': 'pullup', 'cal-dominada-lastre': 'pullupW', 'cal-dominada-explosiva': 'pullup', 'cal-dominada-arquera': 'pullup', 'cal-remo-mancuerna': 'dbrow',
+  'cal-remo-banda': 'seatrow', 'cal-superman': 'superman', 'cal-sentadilla': 'squatBW', 'cal-zancada': 'lunge', 'cal-bulgara': 'bulgara', 'cal-pistol-asistida': 'pistol',
+  'cal-sentadilla-salto': 'jumpSquat', 'cal-puente-gluteo': 'bridge', 'cal-gemelo-unipodal': 'calf', 'cal-plancha': 'plank', 'cal-escaladores': 'climber', 'cal-hollow': 'hollow',
+  'cal-lsit': 'lsit', 'cal-parada-manos': 'handstand', 'cal-burpee': 'burpee', 'cal-mov-munecas': 'lateral', 'cal-mov-hombros': 'lateral',
 }
 export const FIGURE_BY_ZONE = { Pecho: 'bench', Espalda: 'pulldown', Piernas: 'squat', Hombros: 'press', Brazos: 'curl', Abdomen: 'crunch', Cardio: 'walk' }
 export const poseKeyOf = (id, zone) => FIGURE_OF[id] || FIGURE_BY_ZONE[zone] || 'walk'
@@ -89,6 +127,16 @@ export const FIGURE_KEYS = Object.keys(POSES)
 
 // Subtítulos específicos cuando el mismo dibujo sirve para varios ejercicios
 const CAP_OVERRIDE = {
+  'cal-flexion-pies-elevados': 'Pies sobre una banca · baja el pecho al piso y empuja',
+  'cal-flexion-diamante': 'Manos juntas en rombo · codos pegados al cuerpo',
+  'cal-flexion-arquera': 'Manos muy abiertas · baja hacia un lado y alterna',
+  'cal-dominada-negativa': 'Sube con ayuda y baja lento en 4-5 segundos',
+  'cal-dominada-supina': 'Palmas hacia ti · pasa la barbilla de la barra',
+  'cal-dominada-explosiva': 'Tira rápido y lleva el pecho a la barra',
+  'cal-dominada-arquera': 'Agarre ancho · sube hacia un lado y alterna',
+  'cal-mov-munecas': 'Círculos suaves con las muñecas en ambos sentidos',
+  'cal-mov-hombros': 'Círculos amplios con los brazos, banda sobre la cabeza',
+  'cal-gemelo-unipodal': 'Sobre una pierna · sube y baja el talón',
   'curl-martillo': 'De pie · palmas enfrentadas, sube doblando el codo',
   'sentadilla-hack': 'Baja profundo con la espalda apoyada y sube',
 }
@@ -172,9 +220,14 @@ const esc = (t) => t.replace(/&/g, '&amp;').replace(/</g, '&lt;')
 // SVG completo. compact = solo la posición final (miniaturas)
 export function figureSVG(id, zone, color, compact = false) {
   const key = poseKeyOf(id, zone); const spec = POSES[key]
-  if (compact) return `<svg viewBox="0 0 100 112" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%">${FLOORLINE(4, 96)}${drawFrame(spec, 'b', color, true)}</svg>`
+  if (spec.static) {
+    const cap0 = esc(CAP_OVERRIDE[id] || spec.cap || '')
+    if (compact) return `<svg viewBox="0 -10 100 122" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%">${FLOORLINE(4, 96)}${drawFrame(spec, 'a', color, false)}</svg>`
+    return `<svg viewBox="0 -10 230 150" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%">${FLOORLINE(65, 165)}<g transform="translate(65,0)">${drawFrame(spec, 'a', color, false)}</g><text x="115" y="121" text-anchor="middle" font-size="8" font-weight="800" fill="#c6f432" font-family="Inter,Arial">MANTÉN LA POSICIÓN</text><text x="115" y="135" text-anchor="middle" font-size="8" font-weight="600" fill="#e6e8ee" font-family="Inter,Arial">${cap0}</text></svg>`
+  }
+  if (compact) return `<svg viewBox="0 -10 100 122" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%">${FLOORLINE(4, 96)}${drawFrame(spec, 'b', color, true)}</svg>`
   const cap = esc(CAP_OVERRIDE[id] || spec.cap || '')
-  return `<svg viewBox="0 0 230 140" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%">
+  return `<svg viewBox="0 -10 230 150" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%">
     ${FLOORLINE(2, 100)}${FLOORLINE(130, 228)}
     <g>${drawFrame(spec, 'a', color, false)}</g>
     <g transform="translate(130,0)">${drawFrame(spec, 'b', color, true)}</g>

@@ -19,7 +19,9 @@ const ex = (id, name, zone, level, rest, steps, def = {}) => ({
   sets: def.sets ?? 3, reps: def.reps ?? '8-12', rir: def.rir ?? '1-2',
 })
 
-export const SEED_EXERCISES = [
+import { CALI_EXERCISES } from './cali'
+
+const BASE_EXERCISES = [
   // PECHO
   ex('press-inclinado', 'Press inclinado con mancuernas', 'Pecho', 'Intermedio', 150, [
     'Ajusta el banco a 30-45°.', 'Baja controlado hasta el pecho alto, codos a ~45° del torso.', 'Empuja hacia arriba sin bloquear los codos de golpe.', 'Mantén los omóplatos juntos y los pies firmes.',
@@ -121,6 +123,8 @@ export const SEED_EXERCISES = [
     'Salta con las puntas de los pies.', 'Muñecas mueven la cuerda, codos pegados.', 'Saltos bajos y rítmicos.', 'Intervalos de 30-60 s con descanso.',
   ], { sets: 4, reps: '45 s', rir: '-' }),
 ]
+
+export const SEED_EXERCISES = [...BASE_EXERCISES, ...CALI_EXERCISES]
 
 const item = (exId, sets, reps, rir) => ({ exId, sets, reps, rir, weight: 0 })
 

@@ -4,6 +4,7 @@ import { HABITS, ZONE_COLOR } from './data'
 import { SOUNDS, VOLUMES, playEnd, speak, unlockAudio } from './audio'
 import { DAY_SHORT, addDays, compressImage, dateKey, fmtDate, fmtDur, fmtNum, mondayOf, uid } from './lib'
 import { Button, Card, Chip, Empty, Header, Sheet, ZoneDot, cx, inputCls } from './ui'
+import { GuideButton, HabitInfoSheet, InfoButton, Method345, StandardsGuide } from './Method'
 
 const num = (v) => Number(String(v).replace(',', '.')) || 0
 
@@ -40,6 +41,7 @@ function Section({ icon: Icon, title, children, defaultOpen = false }) {
 
 function Habits({ state, update }) {
   const k = dateKey(); const today = state.habits[k] || []
+  const [info, setInfo] = useState(null); const [guide, setGuide] = useState(false); const [m345, setM345] = useState(false)
   const toggle = (id) => update((s) => { const cur = s.habits[k] || []; return { ...s, habits: { ...s.habits, [k]: cur.includes(id) ? cur.filter((x) => x !== id) : [...cur, id] } } })
   const days = Array.from({ length: 7 }, (_, i) => addDays(mondayOf(new Date()), i))
   const weekDone = days.reduce((a, d) => a + (state.habits[dateKey(d)] || []).length, 0)
@@ -47,15 +49,25 @@ function Habits({ state, update }) {
   return (
     <>
       <div className="space-y-2 mb-3">
+        <GuideButton onClick={() => setGuide(true)} />
+        <button onClick={() => setM345(true)} className="w-full min-h-14 rounded-2xl border border-line bg-surface px-4 flex items-center justify-between font-bold"><span>Mi Método 3-4-5</span><span className="text-neon text-sm">Abrir</span></button>
+      </div>
+      <div className="space-y-2 mb-3">
         {HABITS.map((h) => { const on = today.includes(h.id)
-          return <button key={h.id} onClick={() => toggle(h.id)} className={cx('w-full min-h-14 px-4 rounded-2xl border flex items-center gap-3 text-left font-semibold', on ? 'bg-neon/15 border-neon' : 'bg-surface border-line')}>
-            <span className={cx('size-7 rounded-lg border-2 flex items-center justify-center shrink-0', on ? 'bg-neon border-neon text-black' : 'border-muted')}>{on && '✓'}</span>{h.label}</button> })}
+          return <div key={h.id} className="flex gap-2">
+            <button onClick={() => toggle(h.id)} className={cx('flex-1 min-w-0 min-h-14 px-4 rounded-2xl border flex items-center gap-3 text-left font-semibold', on ? 'bg-neon/15 border-neon' : 'bg-surface border-line')}>
+              <span className={cx('size-7 rounded-lg border-2 flex items-center justify-center shrink-0', on ? 'bg-neon border-neon text-black' : 'border-muted')}>{on && '✓'}</span><span className="leading-tight">{h.label}</span></button>
+            <InfoButton onClick={() => setInfo(h.id)} />
+          </div> })}
       </div>
       <Card>
         <div className="flex justify-between text-sm text-muted mb-2"><span>Semana · {pct}% de casillas (80% = gran semana)</span></div>
         <div className="grid grid-cols-7 gap-1.5">{days.map((d, i) => { const n = (state.habits[dateKey(d)] || []).length
           return <div key={i} className="text-center"><div className="text-xs text-muted mb-1">{DAY_SHORT[i]}</div><div className="h-10 rounded-xl flex items-center justify-center text-sm font-bold" style={{ background: `rgba(57,255,20,${n / HABITS.length * 0.8 + 0.05})`, color: n > HABITS.length / 2 ? '#000' : '#fff' }}>{n}</div></div> })}</div>
       </Card>
+      {info && <HabitInfoSheet id={info} onClose={() => setInfo(null)} />}
+      {guide && <StandardsGuide onClose={() => setGuide(false)} onOpen345={() => { setGuide(false); setM345(true) }} />}
+      {m345 && <Method345 state={state} update={update} onClose={() => setM345(false)} />}
     </>
   )
 }

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { BarChart3, CalendarDays, Dumbbell, Library as LibIcon } from 'lucide-react'
+import { BarChart3, CalendarDays, Dumbbell, Library as LibIcon, PersonStanding } from 'lucide-react'
 import { downloadBackup, initBackNav, useBackLayer, useStore } from './lib'
 import { useAccess } from './access'
 import { cx } from './ui'
@@ -8,11 +8,13 @@ import { ActiveWorkout } from './Active'
 import Calendar from './Calendar'
 import Library from './Library'
 import Progress from './Progress'
+import Calisthenics from './Calisthenics'
 
 const TABS = [
   { id: 'today', label: 'Entrenar', icon: Dumbbell },
   { id: 'calendar', label: 'Calendario', icon: CalendarDays },
   { id: 'library', label: 'Ejercicios', icon: LibIcon },
+  { id: 'cali', label: 'Calistenia', icon: PersonStanding },
   { id: 'progress', label: 'Progreso', icon: BarChart3 },
 ]
 
@@ -82,11 +84,12 @@ export default function App() {
         {tab === 'today' && <Today state={state} update={update} onStartTraining={() => {}} />}
         {tab === 'calendar' && <Calendar state={state} update={update} onStart={() => setTab('today')} />}
         {tab === 'library' && <Library state={state} update={update} />}
+        {tab === 'cali' && <Calisthenics state={state} update={update} onToday={() => setTab('today')} />}
         {tab === 'progress' && <Progress state={state} update={update} replaceAll={replaceAll} saveError={saveError} />}
       </main>
       {toast && <div className="fixed bottom-24 inset-x-0 z-50 flex justify-center pointer-events-none"><div className="bg-surface2 border border-line rounded-full px-5 py-3 font-semibold shadow-lg">Presiona atrás otra vez para salir</div></div>}
       <nav className="fixed bottom-0 inset-x-0 z-30 bg-bg/95 backdrop-blur border-t border-line safe-bottom">
-        <div className="max-w-xl mx-auto grid grid-cols-4">
+        <div className="max-w-xl mx-auto grid grid-cols-5">
           {TABS.map(({ id, label, icon: Icon }) => (
             <button key={id} onClick={() => setTab(id)} aria-current={tab === id} className={cx('min-h-[68px] flex flex-col items-center justify-center gap-1 text-xs font-bold', tab === id ? 'text-neon' : 'text-muted')}>
               <Icon size={26} strokeWidth={tab === id ? 2.8 : 2} />{label}

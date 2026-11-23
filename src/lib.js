@@ -28,6 +28,7 @@ function initialState() {
   return {
     exercises: SEED_EXERCISES,
     plan: SEED_PLAN,
+    method: { goals: ['', '', ''], morning: ['', '', '', ''], morningDone: {}, tasks: {} }, // Método 3-4-5
     overrides: {},     // plan solo para una fecha concreta: { 'YYYY-MM-DD': {label,zones,items,rest} }
     history: [],
     measures: [],      // { id, date, weight, waist, steps, sleep }
@@ -38,12 +39,16 @@ function initialState() {
 }
 
 // Migración de datos guardados: actualiza nombres/instrucciones de ejercicios precargados (español latino)
-const DATA_VERSION = 2
+const DATA_VERSION = 3
 function migrate(s) {
   const out = { ...initialState(), ...s, settings: { ...DEFAULT_SETTINGS, ...(s.settings || {}) } }
   if ((s.dataVersion || 1) < DATA_VERSION) {
     const seed = Object.fromEntries(SEED_EXERCISES.map((e) => [e.id, e]))
     out.exercises = (out.exercises || []).map((e) => (!e.custom && seed[e.id] ? { ...e, name: seed[e.id].name, steps: seed[e.id].steps } : e))
+  }
+  if ((s.dataVersion || 1) < 3) { // ejercicios nuevos (calistenia) para quien ya tenía datos
+    const have = new Set((out.exercises || []).map((e) => e.id))
+    out.exercises = [...out.exercises, ...SEED_EXERCISES.filter((e) => !have.has(e.id))]
   }
   out.dataVersion = DATA_VERSION
   return out

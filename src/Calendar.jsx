@@ -1,9 +1,10 @@
 import { useMemo, useState } from 'react'
-import { ArrowDown, ArrowUp, Check, Dumbbell, ChevronLeft, ChevronRight, Moon, Plus, Trash2, Play, Pencil } from 'lucide-react'
+import { ArrowDown, ArrowUp, ArrowRightLeft, Check, Dumbbell, ChevronLeft, ChevronRight, Moon, Plus, Trash2, Play, Pencil } from 'lucide-react'
 import { ZONES, ZONE_COLOR } from './data'
 import { DAY_NAMES, DAY_SHORT, MONTHS, addDays, dateKey, fmtDur, fmtNum, mondayOf, parseKey } from './lib'
 import { Button, Card, Chip, Header, Sheet, ZoneDot, cx, inputCls } from './ui'
 import { ExercisePicker } from './Library'
+import { applyMove, hasSession, planOn } from './moves'
 
 export const isRest = (day) => !day || day.rest || !day.items?.length
 
@@ -65,6 +66,40 @@ export function PlanEditor({ dow, date, state, update, onClose }) {
   )
 }
 
+// ---------- Mover el entrenamiento de un día a otro ----------
+const fmtDateLong = (k) => { const d = parseKey(k); return `${DAY_NAMES[d.getDay()]} ${d.getDate()} de ${MONTHS[d.getMonth()].toLowerCase()}` }
+function MoveSheet({ fromKey, state, update, onClose, onDone }) {
+  const [to, setTo] = useState(null)
+  const fromPlan = planOn(state, fromKey)
+  const days = Array.from({ length: 28 }, (_, i) => addDays(new Date(), i)).filter((d) => dateKey(d) !== fromKey && !hasSession(state, dateKey(d)))
+  const toKey = to && dateKey(to); const toPlan = to && planOn(state, toKey)
+  const toBusy = toPlan && !isRest(toPlan)
+  const go = (mode) => { update((s) => applyMove(s, fromKey, toKey, mode)); onDone(`${mode === 'copiar' ? 'Copiado' : mode === 'intercambiar' ? 'Intercambiados' : 'Movido'} al ${DAY_NAMES[to.getDay()].toLowerCase()} ${to.getDate()}`) }
+  return (
+    <Sheet open onClose={onClose} title="Mover entrenamiento" footer={to && (
+      <div className="space-y-2.5">
+        {toBusy ? <>
+          <Button className="w-full" onClick={() => go('intercambiar')}><ArrowRightLeft size={20} /> Intercambiar los dos días</Button>
+          <Button variant="secondary" className="w-full" onClick={() => go('mover')}>Reemplazar (el origen queda en descanso)</Button>
+        </> : <>
+          <Button className="w-full" onClick={() => go('mover')}>Mover aquí (el origen queda en descanso)</Button>
+          <Button variant="secondary" className="w-full" onClick={() => go('copiar')}>Copiar (queda en los dos días)</Button>
+        </>}
+      </div>)}>
+      <Card className="mb-3"><div className="text-xs text-muted font-bold">SE MUEVE</div><div className="text-lg font-black">{fromPlan?.label}</div><div className="text-sm text-muted">{fmtDateLong(fromKey)}</div></Card>
+      <div className="text-sm font-bold text-muted mb-2">ELIGE EL DÍA DESTINO</div>
+      <div className="space-y-2">
+        {days.map((d) => { const k = dateKey(d); const p = planOn(state, k); const on = to && dateKey(to) === k
+          return <button key={k} onClick={() => setTo(d)} className={cx('w-full text-left rounded-2xl border p-3 flex items-center gap-3', on ? 'border-neon bg-neon/10' : 'border-line bg-surface')}>
+            <div className="w-14 text-center shrink-0"><div className="text-xs font-bold text-muted uppercase">{DAY_NAMES[d.getDay()].slice(0, 3)}</div><div className="text-2xl font-black leading-none">{d.getDate()}</div></div>
+            <div className="min-w-0 flex-1"><div className="font-bold truncate">{isRest(p) ? 'Descanso' : p.label}</div><div className="text-xs text-muted">{MONTHS[d.getMonth()]}{k === dateKey() ? ' · hoy' : ''}</div></div>
+            {isRest(p) ? <Moon size={16} className="text-muted" /> : <Dumbbell size={16} className="text-neon" />}
+          </button> })}
+      </div>
+    </Sheet>
+  )
+}
+
 // Estado de un día: 'done' | 'planned' | 'rest'
 function dayInfo(date, state) {
   const k = dateKey(date); const dow = date.getDay(); const custom = !!state.overrides?.[k]; const plan = state.overrides?.[k] || state.plan[dow]
@@ -84,6 +119,8 @@ export default function Calendar({ state, update, onStart }) {
   const [cursor, setCursor] = useState(() => new Date())
   const [sel, setSel] = useState(null) // Date seleccionada
   const [editDow, setEditDow] = useState(null) // { dow, date }
+  const [moveFrom, setMoveFrom] = useState(null)
+  const [flash, setFlash] = useState('')
   const todayK = dateKey()
   const exMap = useMemo(() => Object.fromEntries(state.exercises.map((e) => [e.id, e])), [state.exercises])
 
@@ -155,7 +192,7 @@ export default function Calendar({ state, update, onStart }) {
           </div>
         )}
 
-        <p className="text-center text-sm text-neon/80 mt-3">Toca cualquier día para cambiarlo entre entrenamiento y descanso, o editar su rutina.</p>
+        <p className="text-center text-sm text-neon/80 mt-3">Toca un día para cambiarlo, editarlo o moverlo a otro día.</p>
         <div className="flex gap-4 justify-center text-xs text-muted mt-3 pb-4 flex-wrap">
           <span className="flex items-center gap-1"><Check size={14} className="text-neon" strokeWidth={4} /> Completado</span>
           <span className="flex items-center gap-1"><ZoneDot zone="Pecho" size={8} /><ZoneDot zone="Espalda" size={8} /> Planificado</span>
@@ -170,6 +207,7 @@ export default function Calendar({ state, update, onStart }) {
             <Button variant="secondary" className="w-full" onClick={() => toggleRest(sel, selInfo)}>
               {selInfo.rest ? <><Dumbbell size={20} /> Convertir en día de entrenamiento</> : <><Moon size={20} /> Convertir en día de descanso</>}
             </Button>
+            {!selInfo.rest && selInfo.status !== 'done' && <Button variant="secondary" className="w-full" onClick={() => { setMoveFrom(selInfo.k); setSel(null) }}><ArrowRightLeft size={20} /> Mover a otro día</Button>}
             <div className="space-y-2.5">
               <Button variant="secondary" className="w-full !text-base" onClick={() => { setEditDow({ dow: sel.getDay(), date: selInfo.k }); setSel(null) }}><Pencil size={18} /> Editar solo este día</Button>
               <Button variant="secondary" className="w-full !text-base" onClick={() => { setEditDow({ dow: sel.getDay() }); setSel(null) }}><Pencil size={18} /> Todos los {DAY_NAMES[sel.getDay()].toLowerCase()}</Button>
@@ -193,6 +231,8 @@ export default function Calendar({ state, update, onStart }) {
           ))}
         </Sheet>
       )}
+      {moveFrom && <MoveSheet fromKey={moveFrom} state={state} update={update} onClose={() => setMoveFrom(null)} onDone={(m) => { setMoveFrom(null); setFlash(m); setTimeout(() => setFlash(''), 2500) }} />}
+      {flash && <div className="fixed bottom-24 inset-x-0 z-50 flex justify-center pointer-events-none"><div className="bg-neon text-black rounded-full px-5 py-3 font-bold shadow-lg">{flash} ✔</div></div>}
       {editDow && <PlanEditor dow={editDow.dow} date={editDow.date} state={state} update={update} onClose={() => setEditDow(null)} />}
     </div>
   )

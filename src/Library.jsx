@@ -116,7 +116,7 @@ export default function Library({ state, update }) {
   const [zone, setZone] = useState('Todos'); const [q, setQ] = useState('')
   const [detail, setDetail] = useState(null); const [form, setForm] = useState(null)
   const { exercises } = state
-  const list = exercises.filter((e) => (zone === 'Todos' || e.zone === zone) && e.name.toLowerCase().includes(q.toLowerCase()))
+  const list = exercises.filter((e) => (zone === 'Todos' || (zone === 'Calistenia' ? e.cali : e.zone === zone)) && e.name.toLowerCase().includes(q.toLowerCase()))
 
   const save = (ex) => {
     update((s) => ({ ...s, exercises: s.exercises.some((e) => e.id === ex.id) ? s.exercises.map((e) => (e.id === ex.id ? ex : e)) : [...s.exercises, ex] }))
@@ -134,7 +134,7 @@ export default function Library({ state, update }) {
           <input className={inputCls + ' pl-12'} placeholder="Buscar ejercicio…" value={q} onChange={(e) => setQ(e.target.value)} />
         </div>
         <div className="flex gap-2 overflow-x-auto no-scrollbar pb-3 -mx-4 px-4">
-          {['Todos', ...ZONES].map((z) => <Chip key={z} active={zone === z} color={ZONE_COLOR[z]} onClick={() => setZone(z)}>{z}</Chip>)}
+          {['Todos', 'Calistenia', ...ZONES].map((z) => <Chip key={z} active={zone === z} color={ZONE_COLOR[z]} onClick={() => setZone(z)}>{z}</Chip>)}
         </div>
         <div className="grid grid-cols-2 gap-3 pb-4">
           {list.map((e) => (

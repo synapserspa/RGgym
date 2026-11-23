@@ -1,11 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Bot, Check, Moon, Pencil, Play, Repeat, Dumbbell } from 'lucide-react'
-import { DAY_NAMES, MONTHS, dateKey, fmtDur, mondayOf } from './lib'
+import { DAY_NAMES, MONTHS, dateKey, fmtDur, mondayOf, parseKey } from './lib'
 import { speak, unlockAudio } from './audio'
 import { estimateSec, workSeconds } from './Active'
 import { Button, Card, Chip, Empty, ExerciseImage, Header, ZoneDot, cx } from './ui'
 import { ExerciseDetail } from './Library'
 import { PlanEditor, isRest } from './Calendar'
+import { REST_DAY, missedDay, moveMissedToToday } from './moves'
 
 const saludo = (d) => (d.getHours() < 12 ? 'Buenos días' : d.getHours() < 20 ? 'Buenas tardes' : 'Buenas noches')
 const FRASES = ['Primero el trabajo, después el resultado.', 'No necesitas motivación: necesitas un sistema.', 'Los días sin ganas son los que más importan.', 'Cada hábito es un voto a favor de tu nueva identidad.', 'Sobrecarga progresiva: mejora algo en cada sesión.', 'Consistencia, no perfección.', 'Recuperas = progresas.']
@@ -17,8 +18,21 @@ export default function Today({ state, update, onStartTraining }) {
   const exMap = useMemo(() => Object.fromEntries(state.exercises.map((e) => [e.id, e])), [state.exercises])
   const doneToday = state.history.filter((h) => h.date === k)
   const [detail, setDetail] = useState(null); const [edit, setEdit] = useState(false)
-  const [mode, setMode] = useState(state.settings.circuit ? 'circuit' : 'serial')
+  const [mode, setMode] = useState(plan?.circuit || state.settings.circuit ? 'circuit' : 'serial')
   const weekStart = mondayOf(now); const weekCount = new Set(state.history.filter((h) => h.date >= dateKey(weekStart)).map((h) => h.date)).size
+
+  const missed = missedDay(state, now)
+  const [movedMsg, setMovedMsg] = useState('')
+  const missedHere = () => {
+    const r = moveMissedToToday(state, missed.key, k)
+    if (r.needsConfirm) {
+      if (!confirm('No hay un día de descanso libre en los próximos 4 días para correr la rutina de hoy. Se reemplazará la de hoy. ¿Continuar?')) return
+      const f = moveMissedToToday(state, missed.key, k, true); update(() => f.state); return
+    }
+    update(() => r.state)
+    setMovedMsg(r.pushedTo ? `Listo. La rutina que tenías hoy pasó al ${DAY_NAMES[parseKey(r.pushedTo).getDay()].toLowerCase()} ${parseKey(r.pushedTo).getDate()}.` : 'Listo: hoy toca la rutina que te faltó.')
+  }
+  const missedSkip = () => update((s) => ({ ...s, overrides: { ...(s.overrides || {}), [missed.key]: { ...REST_DAY } } }))
 
   const start = (auto = false) => {
     unlockAudio()
@@ -50,6 +64,15 @@ export default function Today({ state, update, onStartTraining }) {
           </div>
           <div className="text-sm text-neon/80 italic mt-2">“{FRASES[Math.floor(now / 864e5) % FRASES.length]}”</div>
         </div>
+        {movedMsg && <div className="rounded-2xl border border-neon/50 bg-neon/10 p-3 mb-3 font-semibold">{movedMsg}</div>}
+        {missed && (
+          <Card className="mb-4 border-amber-400/50">
+            <div className="text-xs font-bold text-amber-300 mb-1">DÍA PERDIDO</div>
+            <div className="font-black text-lg leading-tight">El {DAY_NAMES[parseKey(missed.key).getDay()].toLowerCase()} no hiciste «{missed.plan.label}»</div>
+            <p className="text-sm text-muted mt-1">En vez de saltarla, pásala a hoy. Si hoy ya tenías rutina, la corro al siguiente día de descanso.</p>
+            <div className="flex gap-2.5 mt-3"><Button className="flex-1 !text-base" onClick={missedHere}>Hacerla hoy</Button><Button variant="secondary" className="flex-1 !text-base" onClick={missedSkip}>Omitir</Button></div>
+          </Card>
+        )}
         {!plan || (!plan.items.length && !plan.zones.length) ? (
           <Card><Empty icon={Dumbbell} text="No tienes plan para hoy." /><Button className="w-full" onClick={() => setEdit(true)}><Pencil size={20} /> Crear plan de hoy</Button></Card>
         ) : (
