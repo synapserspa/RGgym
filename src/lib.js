@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { DEFAULT_SETTINGS, SEED_EXERCISES, SEED_PLAN } from './data'
+import { DEFAULT_SETTINGS, SEED_EXERCISES, SEED_MEALS, SEED_PLAN } from './data'
 
 const KEY = 'metodoh.v1'
 
@@ -29,6 +29,10 @@ function initialState() {
     exercises: SEED_EXERCISES,
     plan: SEED_PLAN,
     method: { goals: ['', '', ''], morning: ['', '', '', ''], morningDone: {}, tasks: {} }, // Método 3-4-5
+    roadmap: null,     // hoja de ruta de 12 semanas { start, done, checkins }
+    food: {},          // comidas por fecha
+    meals: SEED_MEALS, // comidas frecuentes
+    photos: [],        // fotos de progreso
     overrides: {},     // plan solo para una fecha concreta: { 'YYYY-MM-DD': {label,zones,items,rest} }
     history: [],
     measures: [],      // { id, date, weight, waist, steps, sleep }

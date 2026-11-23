@@ -3,6 +3,8 @@ import { Bot, Check, ChevronDown, ChevronUp, Flag, Minus, Pause, Play, Plus, Ski
 import { dateKey, fmtDur, fmtNum, fmtTime, repsStart, sessionVolume, uid, useBackLayer, useNow, useWakeLock, vibrate } from './lib'
 import { playDone, playEnd, playGo, playTick, speak, unlockAudio } from './audio'
 import { Button, Card, Chip, ExerciseImage, Sheet, ZoneDot, cx, inputCls } from './ui'
+import { findPRs, suggestNext } from './records'
+import { ToolsSheet } from './Tools'
 
 // ---------- Secuencia de pasos ----------
 export function buildSteps(items, mode) {
@@ -87,13 +89,17 @@ export function ActiveWorkout({ state, update, onExit }) {
   const [summary, setSummary] = useState(false)
   const [notes, setNotes] = useState('')
   const [menu, setMenu] = useState(false)
+  const [tools, setTools] = useState(false)
   useBackLayer(true, () => setMenu(true)) // "atrás" en pleno entrenamiento abre el menú en vez de salir
+
+  // Sugerencia de progresión según tu última sesión de este ejercicio
+  const sug = useMemo(() => (item && ex ? suggestNext(state.history, ex, item.reps) : null), [a.pos, state.history]) // eslint-disable-line
 
   // Valores iniciales de cada serie: la última serie del mismo ejercicio o los objetivos del plan
   useEffect(() => {
     if (!item) return
     const last = [...a.logs].reverse().find((l) => l.item === step.item)
-    setInp({ reps: last ? last.reps : repsStart(item.reps) || 10, weight: last ? last.weight : item.weight || 0 })
+    setInp({ reps: last ? last.reps : sug?.reps || repsStart(item.reps) || 10, weight: last ? last.weight : sug ? sug.weight : item.weight || 0 })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [a.pos])
 
@@ -203,8 +209,9 @@ export function ActiveWorkout({ state, update, onExit }) {
       if (a.key && overrides[a.key]) overrides[a.key] = upd(overrides[a.key])
       else if (plan[a.dow]) plan[a.dow] = upd(plan[a.dow])
       const day = rec.date
+      const prs = findPRs(s.history, sets)
       const habits = { ...s.habits, [day]: [...new Set([...(s.habits[day] || []), 'entreno'])] }
-      return { ...s, plan, overrides, habits, history: [rec, ...s.history], active: null }
+      return { ...s, plan, overrides, habits, history: [{ ...rec, prs }, ...s.history], prFlash: prs.length ? prs : null, active: null }
     })
     onExit()
   }
@@ -259,6 +266,7 @@ export function ActiveWorkout({ state, update, onExit }) {
               <div>
                 <div className="text-4xl font-black">Serie {step.set + 1}<span className="text-muted"> de {item.sets}</span></div>
                 <div className="text-muted font-semibold">Objetivo {item.reps}{item.rir && item.rir !== '-' ? ` · RIR ${item.rir}` : ''}</div>
+                {sug && <div className="text-sm text-neon mt-1 leading-snug">💡 {sug.note}</div>}
               </div>
               <div className="flex gap-1.5">{Array.from({ length: item.sets }, (_, i) => <span key={i} className={cx('size-4 rounded-full', i < doneInEx ? 'bg-neon' : i === step.set ? 'bg-white' : 'bg-surface2')} />)}</div>
             </div>
@@ -270,6 +278,7 @@ export function ActiveWorkout({ state, update, onExit }) {
               </div>
             )}
 
+            {!cardio && <button onClick={() => setTools(true)} className="w-full min-h-12 mb-3 rounded-2xl border border-line bg-surface text-sm font-bold text-muted">🧮 Calculadora de discos y 1RM</button>}
             <div className="flex items-center gap-2 overflow-x-auto no-scrollbar -mx-4 px-4 pb-1">
               <Timer size={18} className="text-muted shrink-0" /><span className="text-sm text-muted shrink-0">Descanso:</span>
               {[[0, `Auto (${ex.rest}s)`], [60, '60s'], [90, '90s'], [120, '120s'], [180, '180s']].map(([v, l]) => (
@@ -333,7 +342,7 @@ export function ActiveWorkout({ state, update, onExit }) {
             <div className="text-xs font-bold text-neon mb-2">A CONTINUACIÓN · SERIE {step.set + 1} DE {item.sets}{a.mode === 'circuit' ? ` · RONDA ${step.round + 1}` : ''}</div>
             <div className="flex gap-3 items-center mb-3">
               <ExerciseImage ex={ex} className="w-32 h-20 shrink-0" />
-              <div className="min-w-0"><div className="font-black text-lg leading-tight">{ex.name}</div><div className="text-sm text-muted">Objetivo {item.reps}{item.rir && item.rir !== '-' ? ` · RIR ${item.rir}` : ''}</div></div>
+              <div className="min-w-0"><div className="font-black text-lg leading-tight">{ex.name}</div><div className="text-sm text-muted">Objetivo {item.reps}{item.rir && item.rir !== '-' ? ` · RIR ${item.rir}` : ''}</div>{sug && <div className="text-xs text-neon mt-1 leading-snug">💡 {sug.note}</div>}</div>
             </div>
             {!cardio && (
               <div className="flex gap-3 mb-3">
@@ -353,6 +362,8 @@ export function ActiveWorkout({ state, update, onExit }) {
           </div>
         </div>
       )}
+
+      {tools && <ToolsSheet state={state} update={update} initialWeight={inp.weight || ''} onClose={() => setTools(false)} />}
 
       {/* Menú */}
       <Sheet open={menu} onClose={() => setMenu(false)} title="Entrenamiento">

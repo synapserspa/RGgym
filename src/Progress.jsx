@@ -1,5 +1,5 @@
 import { useMemo, useRef, useState } from 'react'
-import { Calculator, Volume2, Camera, ImagePlus, ChevronDown, ChevronUp, Download, Flame, Scale, Settings, Trash2, Upload, Trophy, ListChecks, Clock, Weight } from 'lucide-react'
+import { Calculator, Flag, Utensils, Volume2, Camera, ImagePlus, ChevronDown, ChevronUp, Download, Flame, Scale, Settings, Trash2, Upload, Trophy, ListChecks, Clock, Weight } from 'lucide-react'
 import { HABITS, ZONE_COLOR } from './data'
 import { SOUNDS, VOLUMES, playEnd, speak, unlockAudio } from './audio'
 import { DAY_SHORT, addDays, compressImage, dateKey, fmtDate, fmtDur, fmtNum, mondayOf, uid } from './lib'
@@ -7,6 +7,11 @@ import { Button, Card, Chip, Empty, Header, Sheet, ZoneDot, cx, inputCls } from 
 import { GoalChip, GoalSheet } from './GoalPanel'
 import { GuideButton, HabitInfoSheet, InfoButton, Method345, StandardsGuide, fmtSteps } from './Method'
 import BodyCalculator from './Calculator'
+import { BodyCharts, PhotosSection } from './BodyProgress'
+import { RoadmapSection } from './RoadmapPanel'
+import { PRFlash, RecordsSection } from './RecordsUI'
+import { ToolsSheet } from './Tools'
+import { FoodSheet } from './Food'
 
 const num = (v) => Number(String(v).replace(',', '.')) || 0
 
@@ -75,16 +80,17 @@ function Habits({ state, update }) {
 }
 
 function Measures({ state, update }) {
-  const [f, setF] = useState({ weight: '', waist: '', steps: '', sleep: '' })
+  const [f, setF] = useState({ weight: '', waist: '', bf: '', steps: '', sleep: '' })
   const last = state.measures[0]
   const add = () => {
-    if (!f.weight && !f.waist && !f.steps && !f.sleep) return
-    update((s) => ({ ...s, measures: [{ id: uid(), date: dateKey(), weight: num(f.weight), waist: num(f.waist), steps: num(f.steps), sleep: num(f.sleep) }, ...s.measures] }))
-    setF({ weight: '', waist: '', steps: '', sleep: '' })
+    if (!f.weight && !f.waist && !f.bf && !f.steps && !f.sleep) return
+    update((s) => ({ ...s, measures: [{ id: uid(), date: dateKey(), weight: num(f.weight), waist: num(f.waist), bf: num(f.bf), steps: num(f.steps), sleep: num(f.sleep) }, ...s.measures] }))
+    setF({ weight: '', waist: '', bf: '', steps: '', sleep: '' })
   }
-  const fields = [['weight', 'Peso (kg)'], ['waist', 'Cintura (cm)'], ['steps', 'Pasos/día'], ['sleep', 'Sueño medio (h)']]
+  const fields = [['weight', 'Peso (kg)'], ['waist', 'Cintura (cm)'], ['bf', '% de grasa'], ['sleep', 'Sueño medio (h)'], ['steps', 'Pasos/día']]
   return (
     <>
+      <BodyCharts state={state} />
       <Card className="mb-3">
         <div className="grid grid-cols-2 gap-3 mb-3">{fields.map(([k, l]) => (
           <label key={k} className="text-xs text-muted font-semibold">{l}<input inputMode="decimal" className={inputCls + ' mt-1'} placeholder={last?.[k] || '0'} value={f[k]} onChange={(e) => setF({ ...f, [k]: e.target.value })} /></label>))}</div>
@@ -93,7 +99,7 @@ function Measures({ state, update }) {
       <div className="space-y-2">{state.measures.slice(0, 12).map((m) => (
         <Card key={m.id} className="!p-3 flex items-center gap-3">
           <div className="flex-1 min-w-0"><div className="font-bold">{fmtDate(m.date)}</div>
-            <div className="text-sm text-muted">{[m.weight && `${m.weight} kg`, m.waist && `${m.waist} cm`, m.steps && `${fmtNum(m.steps)} pasos`, m.sleep && `${m.sleep} h`].filter(Boolean).join(' · ')}</div></div>
+            <div className="text-sm text-muted">{[m.weight && `${m.weight} kg`, m.waist && `${m.waist} cm`, m.bf && `${m.bf} % grasa`, m.steps && `${fmtNum(m.steps)} pasos`, m.sleep && `${m.sleep} h`].filter(Boolean).join(' · ')}</div></div>
           <button aria-label="Borrar registro" onClick={() => update((s) => ({ ...s, measures: s.measures.filter((x) => x.id !== m.id) }))} className="size-11 rounded-xl bg-surface2 flex items-center justify-center text-muted"><Trash2 size={18} /></button>
         </Card>))}</div>
     </>
@@ -202,6 +208,29 @@ function SettingsSheet({ state, update, replaceAll, onClose }) {
   )
 }
 
+function FoodButton({ state, update }) {
+  const [open, setOpen] = useState(false)
+  return (
+    <>
+      <Button variant="secondary" className="w-full" onClick={() => setOpen(true)}><Utensils size={20} /> Registrar comidas de hoy</Button>
+      {open && <FoodSheet state={state} update={update} onClose={() => setOpen(false)} />}
+    </>
+  )
+}
+
+function ToolsButtons({ state, update }) {
+  const [t, setT] = useState(null)
+  return (
+    <>
+      <div className="grid grid-cols-2 gap-3">
+        <Button variant="secondary" onClick={() => setT('discos')}>🧮 Discos</Button>
+        <Button variant="secondary" onClick={() => setT('1rm')}>🏋️ 1RM</Button>
+      </div>
+      {t && <ToolsSheet state={state} update={update} initialTab={t} onClose={() => setT(null)} />}
+    </>
+  )
+}
+
 export default function Progress({ state, update, replaceAll, saveError }) {
   const [settings, setSettings] = useState(false); const [openId, setOpenId] = useState(null)
   const h = state.history
@@ -219,6 +248,7 @@ export default function Progress({ state, update, replaceAll, saveError }) {
         right={<button aria-label="Configuración" onClick={() => setSettings(true)} className="size-14 rounded-2xl bg-surface border border-line flex items-center justify-center"><Settings size={26} /></button>} />
       <div className="px-4 pb-4">
         {saveError && <div className="bg-red-600/20 border border-red-500 rounded-2xl p-3 mb-3 text-sm">⚠ No se pudo guardar (almacenamiento lleno). Exporta una copia y libera espacio quitando fotos.</div>}
+        <PRFlash state={state} update={update} />
         <div className="grid grid-cols-2 gap-3 mb-4">
           {[[Trophy, stats.total, 'Entrenamientos'], [Flame, stats.streak, 'Días seguidos'], [Clock, stats.week, 'Esta semana'], [Weight, fmtNum(stats.volume), 'Volumen total kg']].map(([Icon, v, l]) => (
             <Card key={l} className="!p-3.5"><Icon size={20} className="text-neon mb-1" /><div className="text-3xl font-black leading-none">{v}</div><div className="text-xs text-muted mt-1">{l}</div></Card>))}
@@ -226,8 +256,13 @@ export default function Progress({ state, update, replaceAll, saveError }) {
         {chart.length > 1 && <Card className="mb-4"><div className="text-sm font-bold text-muted mb-2">VOLUMEN POR SESIÓN (kg)</div><VolumeChart data={chart} /></Card>}
 
         <Section icon={ListChecks} title="Estándares de hoy"><Habits state={state} update={update} /></Section>
-        <Section icon={Scale} title="Peso, cintura, pasos y sueño"><Measures state={state} update={update} /></Section>
+        <Section icon={Scale} title="Progreso corporal: medidas y gráficos"><Measures state={state} update={update} /></Section>
+        <Section icon={Flag} title="Hoja de ruta de 12 semanas"><RoadmapSection state={state} update={update} /></Section>
+        <Section icon={Camera} title="Fotos de progreso"><PhotosSection state={state} update={update} /></Section>
+        <Section icon={Utensils} title="Nutrición: mis comidas"><FoodButton state={state} update={update} /></Section>
+        <Section icon={Trophy} title="Récords y progreso por ejercicio"><RecordsSection state={state} /></Section>
         <Section icon={Calculator} title="Calculadora de déficit calórico y grasa corporal"><BodyCalculator state={state} update={update} /></Section>
+        <Section icon={Weight} title="Herramientas: discos y 1RM"><ToolsButtons state={state} update={update} /></Section>
 
         <h2 className="text-xl font-black mt-5 mb-3">Historial</h2>
         {!h.length && <Empty icon={Trophy} text="Aún no hay entrenamientos. ¡Completa el primero!" />}
@@ -239,7 +274,7 @@ export default function Progress({ state, update, replaceAll, saveError }) {
               <Card key={s.id} className="!p-0 overflow-hidden">
                 <button className="w-full text-left p-4" onClick={() => setOpenId(open ? null : s.id)}>
                   <div className="flex justify-between items-start gap-2">
-                    <div><div className="text-sm text-muted font-semibold">{fmtDate(s.date)}</div><div className="text-xl font-black">{s.label}</div></div>
+                    <div><div className="text-sm text-muted font-semibold">{fmtDate(s.date)}</div><div className="text-xl font-black">{s.label}{s.prs?.length ? ' 🏆' : ''}</div></div>
                     {open ? <ChevronUp className="text-muted" /> : <ChevronDown className="text-muted" />}
                   </div>
                   <div className="flex flex-wrap gap-x-3 gap-y-1 text-sm text-muted mt-1">{s.zones?.map((z) => <span key={z} className="flex items-center gap-1"><ZoneDot zone={z} size={8} />{z}</span>)}</div>

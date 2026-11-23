@@ -8,6 +8,8 @@ import { ExerciseDetail } from './Library'
 import { PlanEditor, isRest } from './Calendar'
 import { REST_DAY, missedDay, moveMissedToToday } from './moves'
 import { GoalChip, GoalSheet } from './GoalPanel'
+import { FoodCard, FoodSheet } from './Food'
+import { CheckinBanner } from './RoadmapPanel'
 
 const saludo = (d) => (d.getHours() < 12 ? 'Buenos días' : d.getHours() < 20 ? 'Buenas tardes' : 'Buenas noches')
 const FRASES = ['Primero el trabajo, después el resultado.', 'No necesitas motivación: necesitas un sistema.', 'Los días sin ganas son los que más importan.', 'Cada hábito es un voto a favor de tu nueva identidad.', 'Sobrecarga progresiva: mejora algo en cada sesión.', 'Consistencia, no perfección.', 'Recuperas = progresas.']
@@ -23,6 +25,7 @@ export default function Today({ state, update, onStartTraining }) {
   const weekStart = mondayOf(now); const weekCount = new Set(state.history.filter((h) => h.date >= dateKey(weekStart)).map((h) => h.date)).size
 
   const [goalOpen, setGoalOpen] = useState(false)
+  const [foodOpen, setFoodOpen] = useState(false)
   const missed = missedDay(state, now)
   const [movedMsg, setMovedMsg] = useState('')
   const missedHere = () => {
@@ -67,6 +70,8 @@ export default function Today({ state, update, onStartTraining }) {
           <GoalChip goal={state.settings.goal} onClick={() => setGoalOpen(true)} className="mt-3" />
           <div className="text-sm text-neon/80 italic mt-2">“{FRASES[Math.floor(now / 864e5) % FRASES.length]}”</div>
         </div>
+        <CheckinBanner state={state} update={update} />
+        <FoodCard state={state} onOpen={() => setFoodOpen(true)} />
         {movedMsg && <div className="rounded-2xl border border-neon/50 bg-neon/10 p-3 mb-3 font-semibold">{movedMsg}</div>}
         {missed && (
           <Card className="mb-4 border-amber-400/50">
@@ -124,6 +129,7 @@ export default function Today({ state, update, onStartTraining }) {
         )}
       </div>
       <ExerciseDetail ex={detail} onClose={() => setDetail(null)} />
+      {foodOpen && <FoodSheet state={state} update={update} onClose={() => setFoodOpen(false)} />}
       {goalOpen && <GoalSheet state={state} update={update} onClose={() => setGoalOpen(false)} />}
       {edit && <PlanEditor dow={dow} date={k} state={state} update={update} onClose={() => setEdit(false)} />}
     </div>

@@ -1,7 +1,8 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { AlertTriangle } from 'lucide-react'
 import { goalOf } from './goals'
-import { Card, Chip, cx, inputCls } from './ui'
+import { Button, Card, Chip, cx, inputCls } from './ui'
+import { dateKey, uid } from './lib'
 
 const ACTIVITY = [
   [1.2, 'Sedentario', 'Poco o nada de ejercicio'],
@@ -72,6 +73,7 @@ const Field = ({ label, children, hint }) => (
 )
 
 export default function BodyCalculator({ state, update }) {
+  const [saved, setSaved] = useState(false)
   const c = state.calc || {}
   const set = (p) => update((s) => ({ ...s, calc: { ...(s.calc || {}), ...p } }))
   const goal = goalOf(state.settings.goal)
@@ -120,6 +122,7 @@ export default function BodyCalculator({ state, update }) {
         <>
           <Card className="border-neon/40">
             <div className="text-xs font-bold text-neon mb-2">COMPOSICIÓN CORPORAL</div>
+            <Button variant="secondary" className="w-full mb-3 !text-base" onClick={() => { update((s) => ({ ...s, measures: [{ id: uid(), date: dateKey(), weight: num(c.weight), waist: num(c.waist), bf: round(r.bf, 1), steps: 0, sleep: 0 }, ...s.measures] })); setSaved(true); setTimeout(() => setSaved(false), 2500) }}>{saved ? 'Guardado ✔ (míralo en Progreso corporal)' : 'Guardar peso, cintura y % de grasa en mi progreso'}</Button>
             <div className="grid grid-cols-2 gap-3">
               <div className="bg-surface2 rounded-2xl p-3 text-center col-span-2"><div className="text-4xl font-black text-neon">{round(r.bf, 1).toLocaleString('es-ES')} %</div><div className="text-sm font-bold">grasa corporal · {r.cat}</div><div className="text-[11px] text-muted mt-1">Método: {r.method}</div></div>
               <div className="bg-surface2 rounded-2xl p-3 text-center"><div className="text-2xl font-black">{round(r.fat, 1).toLocaleString('es-ES')} kg</div><div className="text-xs text-muted">masa grasa</div></div>
