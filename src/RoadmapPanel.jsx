@@ -41,7 +41,7 @@ export function CheckinSheet({ state, update, week, onClose }) {
       ) : (
         <>
           <p className="text-muted mb-3">Mídete en las mismas condiciones cada semana (en ayunas, misma hora). Dura un minuto.</p>
-          <div className="grid grid-cols-2 gap-3 mb-4"><F k="weight" label="Peso (kg)" ph="0" /><F k="waist" label="Cintura (cm)" ph="0" /><F k="steps" label="Pasos promedio/día" ph="0" /><F k="sleep" label="Sueño promedio (h)" ph="0" /></div>
+          <div className="grid grid-cols-2 gap-3 mb-4">{F({ k: 'weight', label: 'Peso (kg)', ph: '0' })}{F({ k: 'waist', label: 'Cintura (cm)', ph: '0' })}{F({ k: 'steps', label: 'Pasos promedio/día', ph: '0' })}{F({ k: 'sleep', label: 'Sueño promedio (h)', ph: '0' })}</div>
           <div className="text-xs font-bold text-neon mb-2">¿TIENES SEÑALES DE FATIGA?</div>
           <div className="space-y-2 mb-4">{SIGNALS.map((s, i) => (
             <button key={s} onClick={() => setF((cur) => ({ ...cur, fatigue: cur.fatigue.map((x, j) => (j === i ? !x : x)) }))} className={cx('w-full text-left min-h-12 px-3 rounded-2xl border flex items-center gap-3', f.fatigue[i] ? 'border-amber-400 bg-amber-400/10' : 'border-line bg-surface')}>

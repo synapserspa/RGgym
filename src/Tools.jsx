@@ -25,7 +25,8 @@ function Plates({ state, update, initial }) {
   const set = (p) => update((s) => ({ ...s, settings: { ...s.settings, ...p } }))
   return (
     <div className="space-y-3">
-      <label className="block"><span className="text-xs font-bold text-muted">PESO TOTAL QUE QUIERES (kg)</span>
+      <label className="block"><span className="text-xs font-bold text-muted">PESO TOTAL EN LA BARRA (kg)</span>
+        <span className="block text-xs text-muted mt-0.5">Cuenta la barra más todos los discos. Si quieres levantar 85 kg en total, escribe 85 y te digo qué discos poner a cada lado.</span>
         <input inputMode="decimal" className={inputCls + ' mt-1 text-2xl font-black'} placeholder="Ej. 85" value={target} onChange={(e) => setTarget(e.target.value)} /></label>
       <div><div className="text-xs font-bold text-muted mb-1.5">BARRA</div>
         <div className="flex gap-2">{[10, 15, 20].map((b) => <Chip key={b} active={bar === b} onClick={() => set({ bar: b })}>{b} kg</Chip>)}</div></div>

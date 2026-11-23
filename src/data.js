@@ -185,8 +185,8 @@ export const DEFAULT_SETTINGS = { rest: 0, sound: true, vibrate: true, circuit: 
 export const SEED_MEALS = [
   { id: 'm1', name: 'Avena 80 g + yogur griego 0 % 250 g + plátano + nueces 15 g', kcal: 640, p: 39, c: 87, f: 16 },
   { id: 'm2', name: 'Arroz blanco 120 g (crudo) + pechuga de pollo 150 g + brócoli + 1 cda de aceite de oliva', kcal: 760, p: 46, c: 102, f: 17 },
-  { id: 'm3', name: '4 tortitas de arroz + kéfir 250 ml + 2 kiwis', kcal: 340, p: 12, c: 56, f: 9 },
-  { id: 'm4', name: 'Boniato 300 g + salmón 130 g + ensalada + ½ aguacate', kcal: 680, p: 35, c: 68, f: 30 },
+  { id: 'm3', name: '4 galletas de arroz + kéfir 250 ml + 2 kiwis', kcal: 340, p: 12, c: 56, f: 9 },
+  { id: 'm4', name: 'Camote 300 g + salmón 130 g + ensalada + ½ palta', kcal: 680, p: 35, c: 68, f: 30 },
   { id: 'm5', name: 'Batido de proteína whey (1 medida) con agua', kcal: 120, p: 24, c: 3, f: 2 },
   { id: 'm6', name: '3 huevos + 2 claras', kcal: 290, p: 27, c: 2, f: 19 },
 ]

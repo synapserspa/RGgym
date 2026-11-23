@@ -43,7 +43,7 @@ function initialState() {
 }
 
 // Migración de datos guardados: actualiza nombres/instrucciones de ejercicios precargados (español latino)
-const DATA_VERSION = 4
+const DATA_VERSION = 5
 function migrate(s) {
   const out = { ...initialState(), ...s, settings: { ...DEFAULT_SETTINGS, ...(s.settings || {}) } }
   if ((s.dataVersion || 1) < DATA_VERSION) {
@@ -53,6 +53,10 @@ function migrate(s) {
   if ((s.dataVersion || 1) < 3) { // ejercicios nuevos (calistenia) para quien ya tenía datos
     const have = new Set((out.exercises || []).map((e) => e.id))
     out.exercises = [...out.exercises, ...SEED_EXERCISES.filter((e) => !have.has(e.id))]
+  }
+  if ((s.dataVersion || 1) < 5) { // nombres de comidas de ejemplo en español de Chile
+    const seed = Object.fromEntries(SEED_MEALS.map((m) => [m.id, m]))
+    out.meals = (out.meals || []).map((m) => (seed[m.id] ? { ...m, name: seed[m.id].name } : m))
   }
   out.dataVersion = DATA_VERSION
   return out

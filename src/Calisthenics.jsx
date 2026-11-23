@@ -169,10 +169,10 @@ function LevelTest({ state, update, setDetail, openRoutine }) {
     <div className="space-y-4">
       <p className="text-muted leading-snug">Hazlo descansado y con buena técnica (sin balanceo ni medias repeticiones). Te digo en qué nivel estás y por dónde empezar.</p>
       <Card className="space-y-4">
-        <F k="push" label="Flexiones seguidas" hint="Pecho casi al piso, cuerpo recto" />
-        <F k="pull" label="Dominadas máximas" hint="Barbilla sobre la barra, brazos estirados abajo" />
-        <F k="squat" label="Sentadillas seguidas" hint="Con peso corporal, bajando bien" />
-        <F k="plank" label="Plancha (segundos)" hint="Cuerpo recto, sin hundir la cadera" />
+        {F({ k: 'push', label: 'Flexiones seguidas', hint: 'Pecho casi al piso, cuerpo recto' })}
+        {F({ k: 'pull', label: 'Dominadas máximas', hint: 'Barbilla sobre la barra, brazos estirados abajo' })}
+        {F({ k: 'squat', label: 'Sentadillas seguidas', hint: 'Con peso corporal, bajando bien' })}
+        {F({ k: 'plank', label: 'Plancha (segundos)', hint: 'Cuerpo recto, sin hundir la cadera' })}
         <Button className="w-full" disabled={!filled} onClick={save}><Target size={20} /> Guardar mi test</Button>
       </Card>
       {res && (

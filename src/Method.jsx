@@ -145,7 +145,6 @@ export function Method345({ state, update, onClose }) {
   const setMorning = (i, v) => set({ morning: morning.map((g, j) => (j === i ? v : g)) })
   const toggleMorning = (i) => set({ morningDone: { ...(m.morningDone || {}), [k]: done.map((d, j) => (j === i ? !d : d)) } })
   const setTask = (i, p) => set({ tasks: { ...(m.tasks || {}), [k]: tasks.map((t, j) => (j === i ? { ...t, ...p } : t)) } })
-  const Row = ({ children }) => <div className="flex items-center gap-2 mb-2">{children}</div>
   const Box = ({ on, onClick }) => <button aria-label="Marcar" onClick={onClick} className={`size-12 shrink-0 rounded-xl border-2 flex items-center justify-center ${on ? 'bg-neon border-neon text-black' : 'border-muted'}`}>{on && <Check size={22} strokeWidth={4} />}</button>
 
   return (
@@ -155,10 +154,10 @@ export function Method345({ state, update, onClose }) {
       {goals.map((g, i) => <input key={i} className={inputCls + ' mb-2'} placeholder={['Ej. Llegar a 76 kg limpios', 'Ej. 12 dominadas', 'Ej. Dormir 8 h siempre'][i]} value={g} onChange={(e) => setGoal(i, e.target.value)} />)}
       <h3 className="text-sm font-bold text-muted mt-5 mb-2">4 · PASOS DE MI RUTINA DE MAÑANA</h3>
       <p className="text-xs text-muted mb-2">Escríbelos una vez; cada día marca los que hiciste.</p>
-      {morning.map((g, i) => <Row key={i}><Box on={done[i]} onClick={() => toggleMorning(i)} /><input className={inputCls} placeholder={['Ej. Lavarme los dientes', 'Ej. Ducha fría', 'Ej. Meditar 5 min', 'Ej. 3 agradecimientos'][i]} value={g} onChange={(e) => setMorning(i, e.target.value)} /></Row>)}
+      {morning.map((g, i) => <div key={i} className="flex items-center gap-2 mb-2">{Box({ on: done[i], onClick: () => toggleMorning(i) })}<input className={inputCls} placeholder={['Ej. Lavarme los dientes', 'Ej. Ducha fría', 'Ej. Meditar 5 min', 'Ej. 3 agradecimientos'][i]} value={g} onChange={(e) => setMorning(i, e.target.value)} /></div>)}
       <h3 className="text-sm font-bold text-muted mt-5 mb-2">5 · TAREAS DE HOY</h3>
       <p className="text-xs text-muted mb-2">Simples y cumplibles. Se reinician cada día.</p>
-      {tasks.map((t, i) => <Row key={i}><Box on={t.done} onClick={() => setTask(i, { done: !t.done })} /><input className={inputCls} placeholder={`Tarea ${i + 1}`} value={t.t} onChange={(e) => setTask(i, { t: e.target.value })} /></Row>)}
+      {tasks.map((t, i) => <div key={i} className="flex items-center gap-2 mb-2">{Box({ on: t.done, onClick: () => setTask(i, { done: !t.done }) })}<input className={inputCls} placeholder={`Tarea ${i + 1}`} value={t.t} onChange={(e) => setTask(i, { t: e.target.value })} /></div>)}
       <p className="text-sm text-muted mt-4">Al completar los 4 pasos se marca “Rutina de mañana”; al llenar los 3 + 4 + 5 se marca “Método 3-4-5 escrito”.</p>
     </Sheet>
   )

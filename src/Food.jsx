@@ -92,7 +92,7 @@ export function FoodSheet({ state, update, onClose }) {
       <div className="text-xs font-bold text-neon mb-2">AGREGAR OTRA COMIDA</div>
       <Card className="mb-4">
         <input className={inputCls + ' mb-3'} placeholder="¿Qué comiste? (opcional)" value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} />
-        <div className="grid grid-cols-4 gap-2 mb-3"><F k="kcal" label="Calorías" ph="0" /><F k="p" label="Prot. g" ph="0" /><F k="c" label="Carb. g" ph="0" /><F k="f" label="Grasa g" ph="0" /></div>
+        <div className="grid grid-cols-4 gap-2 mb-3">{F({ k: 'kcal', label: 'Calorías', ph: '0' })}{F({ k: 'p', label: 'Prot. g', ph: '0' })}{F({ k: 'c', label: 'Carb. g', ph: '0' })}{F({ k: 'f', label: 'Grasa g', ph: '0' })}</div>
         <label className="flex items-center gap-2 text-sm mb-3"><input type="checkbox" className="size-5" checked={f.save} onChange={(e) => setF({ ...f, save: e.target.checked })} /> Guardar como comida frecuente</label>
         <Button className="w-full" onClick={submit}><Plus size={20} /> Agregar</Button>
       </Card>
